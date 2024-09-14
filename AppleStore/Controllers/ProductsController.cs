@@ -15,11 +15,12 @@ namespace AppleStore.Controllers
     {
         private readonly IProductRepository _productRepository;
         private readonly ICategoryRepository _categoryRepository;
-
-        public ProductsController(IProductRepository productRepository, ICategoryRepository categoryRepository)
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        public ProductsController(IProductRepository productRepository, ICategoryRepository categoryRepository, IWebHostEnvironment webHostEnvironment)
         {
             _productRepository = productRepository;
             _categoryRepository = categoryRepository;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         private IQueryable<Product> SortProduct(IQueryable<Product> products, string sortOrder)
@@ -96,10 +97,14 @@ namespace AppleStore.Controllers
         // POST: Products/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ProductID,ProductName,Description,ProductPrice,CategoryId,ImageURL")] Product product)
+        public async Task<IActionResult> Create([Bind("ProductID,ProductName,Description,ProductPrice,CategoryId,ImageURL")] Product product, IFormFile file)
         {
             if (ModelState.IsValid)
             {
+                if (file != null && file.Length > 0)
+                {
+                    product.ImageURL = UploadImage(file);
+                }
                 await _productRepository.Add(product);
                 await _productRepository.Save();
                 return RedirectToAction(nameof(Index));
@@ -229,6 +234,23 @@ namespace AppleStore.Controllers
         private bool ProductExists(int id)
         {
             return _productRepository.GetAll().Any(e => e.ProductID == id);
+        }
+        public string UploadImage(IFormFile file)
+        {
+            if (file == null)
+            {
+                throw new ArgumentNullException(nameof(file), "File không được null");
+            }
+
+            string wwwRootPath = _webHostEnvironment.WebRootPath;
+            string fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
+            string productPath = Path.Combine(wwwRootPath, @"images\product");
+            string filePath = Path.Combine(productPath, fileName);
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                file.CopyTo(fileStream);
+            }
+            return Path.Combine(@"\images\product\" + fileName);
         }
     }
 }

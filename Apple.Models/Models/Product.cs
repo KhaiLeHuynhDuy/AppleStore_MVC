@@ -27,6 +27,7 @@ namespace Apple.Models.Models
         [ForeignKey("CategoryId")]
         public Category? Category { get; set; }
         [AllowNull]
+        [ValidateNever]
         public string? ImageURL { get; set; }
 
         [Timestamp]

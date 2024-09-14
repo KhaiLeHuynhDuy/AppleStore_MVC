@@ -119,41 +119,33 @@ namespace AppleStore.Controllers
             return View(category);
         }
 
- 
+
         // POST: Categories/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, byte[] rowVersion)
         {
-            // Lấy đối tượng Category cần cập nhật
             var categoryToUpdate = await _categoryRepository.GetCategoryById(id);
 
             if (categoryToUpdate == null)
             {
-                var deletedCategory=new Category();
-                await TryUpdateModelAsync(deletedCategory);
-                // Xử lý khi đối tượng không tồn tại
                 ModelState.AddModelError(string.Empty, "Unable to save changes. The category was deleted by another user.");
-                return View(deletedCategory); // Trả về một Category rỗng hoặc thông báo lỗi
+                return View(new Category()); // Trả về thông báo lỗi
             }
 
-            // Cập nhật giá trị RowVersion
             categoryToUpdate.RowVersion = rowVersion;
 
-            // Cập nhật mô hình với dữ liệu người dùng gửi
             if (await TryUpdateModelAsync(categoryToUpdate, "",
                 c => c.CategoryName, c => c.DisplayOrder))
             {
                 try
                 {
-                    // Cập nhật qua repository và lưu thay đổi
                     _categoryRepository.Update(categoryToUpdate);
                     await _categoryRepository.Save();
                     return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException ex)
                 {
-                    // Xử lý lỗi xung đột đồng thời
                     var exceptionEntry = ex.Entries.Single();
                     var clientValues = (Category)exceptionEntry.Entity;
                     var databaseEntry = exceptionEntry.GetDatabaseValues();
@@ -166,7 +158,6 @@ namespace AppleStore.Controllers
                     {
                         var databaseValues = (Category)databaseEntry.ToObject();
 
-                        // So sánh các giá trị từ cơ sở dữ liệu và mô hình của người dùng
                         if (databaseValues.CategoryName != clientValues.CategoryName)
                         {
                             ModelState.AddModelError("CategoryName", $"Current value: {databaseValues.CategoryName}");
@@ -178,14 +169,12 @@ namespace AppleStore.Controllers
 
                         ModelState.AddModelError(string.Empty, "The record you attempted to edit was modified by another user after you got the original values.");
 
-                        // Cập nhật lại RowVersion từ cơ sở dữ liệu
                         categoryToUpdate.RowVersion = databaseValues.RowVersion;
                         ModelState.Remove("RowVersion");
                     }
                 }
             }
 
-            // Trả về View với mô hình đã cập nhật
             return View(categoryToUpdate);
         }
 
