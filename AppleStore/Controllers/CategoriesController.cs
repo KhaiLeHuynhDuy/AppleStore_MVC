@@ -8,16 +8,18 @@ using Microsoft.EntityFrameworkCore;
 using Apple.DataAccess.Data;
 using Apple.Models.Models;
 using System.Drawing.Design;
+using Apple.Domain.Repository.IRepository;
+using Apple.Domain.Repository;
 
 namespace AppleStore.Controllers
 {
     public class CategoriesController : Controller
     {
-        private readonly AppleStoreDbContext _context;
+        private readonly ICategoryRepository _categoryRepository;
 
-        public CategoriesController(AppleStoreDbContext context)
+        public CategoriesController(ICategoryRepository categoryRepository)
         {
-            _context = context;
+            _categoryRepository = categoryRepository;
         }
         //sort category theo ten, displayorder
         private IQueryable<Category> SortCategory(IQueryable<Category>categories, string sortOrder)
@@ -50,13 +52,12 @@ namespace AppleStore.Controllers
                 categories = categories.Where(c => c.CategoryName != null
                                                   && c.CategoryName.ToLower().Contains(searchLower));
             }
-            categories.OrderBy(c => c.CategoryName);
             return categories;
         }
         // GET: Categories
         public async Task<IActionResult> Index(string sortOrder, string searchString)
         {
-            IQueryable<Category> categories = _context.Categories.AsNoTracking();
+            IQueryable<Category> categories = _categoryRepository.GetAllCategory();
             //goi ham sort category
             categories = SortCategory(categories, sortOrder);
             //goi ham search
@@ -65,13 +66,10 @@ namespace AppleStore.Controllers
         }
 
         // GET: Categories/Create
-        // GET: Categories/Create
         public IActionResult Create()
         {
             return View();
         }
-
-        // POST: Categories/Create
         // POST: Categories/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -82,8 +80,8 @@ namespace AppleStore.Controllers
                 try
                 {
                     // RowVersion will be handled by EF Core automatically
-                    _context.Add(category);
-                    await _context.SaveChangesAsync();
+                    await _categoryRepository.Add(category);
+                    await _categoryRepository.Save();
                     return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateException ex)
@@ -99,15 +97,9 @@ namespace AppleStore.Controllers
 
 
         // GET: Categories/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var category = await _context.Categories
-                .FirstOrDefaultAsync(m => m.CategoryId == id);
+            var category = await _categoryRepository.GetCategoryById(id);
             if (category == null)
             {
                 return NotFound();
@@ -117,14 +109,9 @@ namespace AppleStore.Controllers
         }
 
         // GET: Categories/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var category = await _context.Categories.AsNoTracking().FirstOrDefaultAsync(c => c.CategoryId == id);
+            var category = await _categoryRepository.GetCategoryById(id);
             if (category == null)
             {
                 return NotFound();
@@ -132,43 +119,45 @@ namespace AppleStore.Controllers
             return View(category);
         }
 
+ 
         // POST: Categories/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int? id, byte[] rowVersion)
+        public async Task<IActionResult> Edit(int id, byte[] rowVersion)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var categoryToUpdate = await _context.Categories
-                .FirstOrDefaultAsync(c => c.CategoryId == id);
+            // Lấy đối tượng Category cần cập nhật
+            var categoryToUpdate = await _categoryRepository.GetCategoryById(id);
 
             if (categoryToUpdate == null)
             {
+                var deletedCategory=new Category();
+                await TryUpdateModelAsync(deletedCategory);
+                // Xử lý khi đối tượng không tồn tại
                 ModelState.AddModelError(string.Empty, "Unable to save changes. The category was deleted by another user.");
-                return View();
+                return View(deletedCategory); // Trả về một Category rỗng hoặc thông báo lỗi
             }
 
-            // Set the original RowVersion value for concurrency check
-            _context.Entry(categoryToUpdate).Property("RowVersion").OriginalValue = rowVersion;
+            // Cập nhật giá trị RowVersion
+            categoryToUpdate.RowVersion = rowVersion;
 
-            if (await TryUpdateModelAsync<Category>(
-                categoryToUpdate,
-                "",
+            // Cập nhật mô hình với dữ liệu người dùng gửi
+            if (await TryUpdateModelAsync(categoryToUpdate, "",
                 c => c.CategoryName, c => c.DisplayOrder))
             {
                 try
                 {
-                    await _context.SaveChangesAsync();
+                    // Cập nhật qua repository và lưu thay đổi
+                    _categoryRepository.Update(categoryToUpdate);
+                    await _categoryRepository.Save();
                     return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException ex)
                 {
+                    // Xử lý lỗi xung đột đồng thời
                     var exceptionEntry = ex.Entries.Single();
                     var clientValues = (Category)exceptionEntry.Entity;
                     var databaseEntry = exceptionEntry.GetDatabaseValues();
+
                     if (databaseEntry == null)
                     {
                         ModelState.AddModelError(string.Empty, "Unable to save changes. The category was deleted by another user.");
@@ -177,6 +166,7 @@ namespace AppleStore.Controllers
                     {
                         var databaseValues = (Category)databaseEntry.ToObject();
 
+                        // So sánh các giá trị từ cơ sở dữ liệu và mô hình của người dùng
                         if (databaseValues.CategoryName != clientValues.CategoryName)
                         {
                             ModelState.AddModelError("CategoryName", $"Current value: {databaseValues.CategoryName}");
@@ -186,27 +176,25 @@ namespace AppleStore.Controllers
                             ModelState.AddModelError("DisplayOrder", $"Current value: {databaseValues.DisplayOrder}");
                         }
 
-                        ModelState.AddModelError(string.Empty, "The record you attempted to edit was modified by another user after you got the original value. The edit operation was canceled and the current values in the database have been displayed. If you still want to edit this record, click the Save button again. Otherwise click the Back to List hyperlink.");
+                        ModelState.AddModelError(string.Empty, "The record you attempted to edit was modified by another user after you got the original values.");
 
+                        // Cập nhật lại RowVersion từ cơ sở dữ liệu
                         categoryToUpdate.RowVersion = databaseValues.RowVersion;
                         ModelState.Remove("RowVersion");
                     }
                 }
             }
 
+            // Trả về View với mô hình đã cập nhật
             return View(categoryToUpdate);
         }
 
         // GET: Categories/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+           
 
-            var category = await _context.Categories
-                .FirstOrDefaultAsync(m => m.CategoryId == id);
+            var category = await _categoryRepository.GetCategoryById(id);
             if (category == null)
             {
                 return NotFound();
@@ -220,19 +208,20 @@ namespace AppleStore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var category = await _context.Categories.FindAsync(id);
-            if (category != null)
+            var category = await _categoryRepository.GetCategoryById(id);
+            if (category == null)
             {
-                _context.Categories.Remove(category);
+                return NotFound();
             }
-
-            await _context.SaveChangesAsync();
+            
+            _categoryRepository.Delete(category);
+            await _categoryRepository.Save();
             return RedirectToAction(nameof(Index));
         }
 
         private bool CategoryExists(int id)
         {
-            return _context.Categories.Any(e => e.CategoryId == id);
+            return _categoryRepository.GetAllCategory().Any(e => e.CategoryId == id);
         }
     }
 }

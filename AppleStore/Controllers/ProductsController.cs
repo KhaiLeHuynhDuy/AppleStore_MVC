@@ -5,31 +5,35 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Apple.DataAccess.Data;
 using Apple.Models.Models;
 using Apple.Models.ViewModels;
+using Apple.Domain.Repository.IRepository;
 
 namespace AppleStore.Controllers
 {
     public class ProductsController : Controller
     {
-        private readonly AppleStoreDbContext _context;
+        private readonly IProductRepository _productRepository;
+        private readonly ICategoryRepository _categoryRepository;
 
-        public ProductsController(AppleStoreDbContext context)
+        public ProductsController(IProductRepository productRepository, ICategoryRepository categoryRepository)
         {
-            _context = context;
+            _productRepository = productRepository;
+            _categoryRepository = categoryRepository;
         }
+
         private IQueryable<Product> SortProduct(IQueryable<Product> products, string sortOrder)
         {
-            ViewData["NameSortParam"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            ViewData["NameSortParam"] = string.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
             ViewData["PriceSortParam"] = sortOrder == "PriceOrder" ? "price_desc" : "PriceOrder";
+
             switch (sortOrder)
             {
                 case "name_desc":
                     products = products.OrderByDescending(c => c.ProductName);
                     break;
                 case "PriceOrder":
-                    products =  products.OrderBy(c => c.ProductPrice);
+                    products = products.OrderBy(c => c.ProductPrice);
                     break;
                 case "price_desc":
                     products = products.OrderByDescending(c => c.ProductPrice);
@@ -38,48 +42,41 @@ namespace AppleStore.Controllers
                     products = products.OrderBy(c => c.ProductName);
                     break;
             }
+
             return products;
         }
+
         private IQueryable<Product> SearchProduct(IQueryable<Product> products, string searchString)
         {
             ViewData["Filter"] = searchString;
-            if (!String.IsNullOrEmpty(searchString))
+            if (!string.IsNullOrEmpty(searchString))
             {
                 var searchLower = searchString.ToLower();
                 products = products.Where(p => p.ProductName != null
                                                   && p.ProductName.ToLower().Contains(searchLower));
             }
-            products.OrderBy(c => c.ProductName);
-            
             return products;
         }
+
         // GET: Products
         public async Task<IActionResult> Index(string sortOrder, string searchString)
         {
             var viewModel = new ProductViewModels();
-            
-            IQueryable<Product> products = _context.Products.AsQueryable()
-                .Include(p=>p.Category)
-                .AsNoTracking();
-            //goi ham sort
-            products = SortProduct(products, sortOrder);
-            //goi ham search
+            IQueryable<Product> products = _productRepository.GetAllProducts();
+
+            // Gọi phương thức sắp xếp và tìm kiếm
             products = SearchProduct(products, searchString);
+            products = SortProduct(products, sortOrder);
+
             viewModel.Products = await products.ToListAsync();
             return View(viewModel);
         }
 
         // GET: Products/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var product = await _productRepository.GetProductById(id);
 
-            var product = await _context.Products
-                .Include(p => p.Category)
-                .FirstOrDefaultAsync(m => m.ProductID == id);
             if (product == null)
             {
                 return NotFound();
@@ -91,81 +88,71 @@ namespace AppleStore.Controllers
         // GET: Products/Create
         public IActionResult Create()
         {
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryName");
+            // Tạo SelectList cho dropdown CategoryId
+            ViewData["CategoryId"] = new SelectList(_categoryRepository.GetAllCategory(), "CategoryId", "CategoryName");
             return View();
         }
 
         // POST: Products/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ProductID,ProductName,Description,ProductPrice,CategoryId,ImageURL")] Product product)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(product);
-                await _context.SaveChangesAsync();
+                await _productRepository.Add(product);
+                await _productRepository.Save();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryName", product.CategoryId);
+
+            // Nếu có lỗi, hãy làm lại SelectList cho dropdown để người dùng không bị mất dữ liệu
+            ViewData["CategoryId"] = new SelectList(_categoryRepository.GetAllCategory(), "CategoryId", "CategoryName", product.CategoryId);
             return View(product);
         }
 
+        // GET: Products/Edit/5
         [HttpGet]
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            // Fetch the product with the given id
-            var product = await _context.Products
-                .FirstOrDefaultAsync(p => p.ProductID == id);
-
+            var product = await _productRepository.GetProductById(id);
             if (product == null)
             {
                 return NotFound();
             }
 
-            // Populate ViewBag with categories for the dropdown
-            ViewBag.CategoryId = new SelectList(_context.Categories, "CategoryId", "CategoryName", product.CategoryId);
+            // Tạo SelectList cho dropdown CategoryId
+            ViewData["CategoryId"] = new SelectList(_categoryRepository.GetAllCategory(), "CategoryId", "CategoryName", product.CategoryId);
 
             return View(product);
         }
 
-        // POST: Categories/Edit/5
+        // POST: Products/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int? id, byte[] rowVersion)
+        public async Task<IActionResult> Edit(int id, byte[] rowVersion)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var productToUpdate = await _context.Products
-                .FirstOrDefaultAsync(p => p.ProductID == id);
+            var productToUpdate = await _productRepository.GetProductById(id);
 
             if (productToUpdate == null)
             {
-                Product deletedProduct = new Product();
+                var deletedProduct = new Product();
                 await TryUpdateModelAsync(deletedProduct);
                 ModelState.AddModelError(string.Empty, "Unable to save changes. The product was deleted by another user.");
 
-                ViewBag.CategoryId = new SelectList(_context.Categories, "CategoryId", "CategoryName", deletedProduct.CategoryId);
+                ViewData["CategoryId"] = new SelectList(_categoryRepository.GetAllCategory(), "CategoryId", "CategoryName", deletedProduct.CategoryId);
                 return View(deletedProduct);
             }
 
-            _context.Entry(productToUpdate).Property("RowVersion").OriginalValue = rowVersion;
+            // Cập nhật giá trị RowVersion để hỗ trợ xử lý đồng thời
+            productToUpdate.RowVersion = rowVersion;
 
             if (await TryUpdateModelAsync(productToUpdate, "",
                 p => p.ProductName, p => p.Description, p => p.ProductPrice, p => p.CategoryId, p => p.ImageURL))
             {
                 try
                 {
-                    await _context.SaveChangesAsync();
+                    _productRepository.Update(productToUpdate); // Cập nhật thông qua repository
+                    await _productRepository.Save(); // Lưu thay đổi qua repository
                     return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException ex)
@@ -202,7 +189,7 @@ namespace AppleStore.Controllers
                 }
             }
 
-            ViewBag.CategoryId = new SelectList(_context.Categories, "CategoryId", "CategoryName", productToUpdate.CategoryId);
+            ViewData["CategoryId"] = new SelectList(_categoryRepository.GetAllCategory(), "CategoryId", "CategoryName", productToUpdate.CategoryId);
             return View(productToUpdate);
         }
 
@@ -215,9 +202,7 @@ namespace AppleStore.Controllers
                 return NotFound();
             }
 
-            var product = await _context.Products
-                .Include(p => p.Category)
-                .FirstOrDefaultAsync(m => m.ProductID == id);
+            var product = await _productRepository.GetProductById(id.Value);
             if (product == null)
             {
                 return NotFound();
@@ -231,19 +216,19 @@ namespace AppleStore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var product = await _context.Products.FindAsync(id);
+            var product = await _productRepository.GetProductById(id);
             if (product != null)
             {
-                _context.Products.Remove(product);
+                _productRepository.Delete(product);
+                await _productRepository.Save();
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool ProductExists(int id)
         {
-            return _context.Products.Any(e => e.ProductID == id);
+            return _productRepository.GetAll().Any(e => e.ProductID == id);
         }
     }
 }
