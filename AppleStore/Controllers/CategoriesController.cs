@@ -72,20 +72,21 @@ namespace AppleStore.Controllers
         }
 
         // POST: Categories/Create
+        // POST: Categories/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CategoryId,CategoryName,DisplayOrder")] Category category)
+        public async Task<IActionResult> Create([Bind("CategoryName,DisplayOrder")] Category category)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
-                    // RowVersion is not set manually; it is handled by EF Core
+                    // RowVersion will be handled by EF Core automatically
                     _context.Add(category);
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Index));
                 }
-                catch (Exception ex)
+                catch (DbUpdateException ex)
                 {
                     // Log exception if needed
                     ModelState.AddModelError(string.Empty, "An error occurred while creating the category. Please try again.");
@@ -94,6 +95,7 @@ namespace AppleStore.Controllers
             }
             return View(category);
         }
+
 
 
         // GET: Categories/Details/5
@@ -133,24 +135,23 @@ namespace AppleStore.Controllers
         // POST: Categories/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Category category, byte[] rowVersion)
+        public async Task<IActionResult> Edit(int? id, byte[] rowVersion)
         {
-            if (id != category.CategoryId)
+            if (id == null)
             {
                 return NotFound();
             }
 
             var categoryToUpdate = await _context.Categories
-               // .AsNoTracking() // phai bo thuoc tinh nay neu khong thi se khong edit duoc do dbcontext khong theo doi
                 .FirstOrDefaultAsync(c => c.CategoryId == id);
 
             if (categoryToUpdate == null)
             {
                 ModelState.AddModelError(string.Empty, "Unable to save changes. The category was deleted by another user.");
-                return View(category);
+                return View();
             }
 
-            // Thiết lập giá trị RowVersion cho đối tượng cần cập nhật
+            // Set the original RowVersion value for concurrency check
             _context.Entry(categoryToUpdate).Property("RowVersion").OriginalValue = rowVersion;
 
             if (await TryUpdateModelAsync<Category>(

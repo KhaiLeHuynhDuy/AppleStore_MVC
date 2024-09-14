@@ -112,7 +112,7 @@ namespace AppleStore.Controllers
             return View(product);
         }
 
-        // GET: Products/Edit/5
+        [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -120,50 +120,92 @@ namespace AppleStore.Controllers
                 return NotFound();
             }
 
-            var product = await _context.Products.FindAsync(id);
+            // Fetch the product with the given id
+            var product = await _context.Products
+                .FirstOrDefaultAsync(p => p.ProductID == id);
+
             if (product == null)
             {
                 return NotFound();
             }
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryName", product.CategoryId);
+
+            // Populate ViewBag with categories for the dropdown
+            ViewBag.CategoryId = new SelectList(_context.Categories, "CategoryId", "CategoryName", product.CategoryId);
+
             return View(product);
         }
 
-        // POST: Products/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: Categories/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ProductID,ProductName,Description,ProductPrice,CategoryId,ImageURL")] Product product)
+        public async Task<IActionResult> Edit(int? id, byte[] rowVersion)
         {
-            if (id != product.ProductID)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            var productToUpdate = await _context.Products
+                .FirstOrDefaultAsync(p => p.ProductID == id);
+
+            if (productToUpdate == null)
+            {
+                Product deletedProduct = new Product();
+                await TryUpdateModelAsync(deletedProduct);
+                ModelState.AddModelError(string.Empty, "Unable to save changes. The product was deleted by another user.");
+
+                ViewBag.CategoryId = new SelectList(_context.Categories, "CategoryId", "CategoryName", deletedProduct.CategoryId);
+                return View(deletedProduct);
+            }
+
+            _context.Entry(productToUpdate).Property("RowVersion").OriginalValue = rowVersion;
+
+            if (await TryUpdateModelAsync(productToUpdate, "",
+                p => p.ProductName, p => p.Description, p => p.ProductPrice, p => p.CategoryId, p => p.ImageURL))
             {
                 try
                 {
-                    _context.Update(product);
                     await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (DbUpdateConcurrencyException ex)
                 {
-                    if (!ProductExists(product.ProductID))
+                    var exceptionEntry = ex.Entries.Single();
+                    var clientValues = (Product)exceptionEntry.Entity;
+                    var databaseEntry = exceptionEntry.GetDatabaseValues();
+                    if (databaseEntry == null)
                     {
-                        return NotFound();
+                        ModelState.AddModelError(string.Empty, "Unable to save changes. The product was deleted by another user.");
                     }
                     else
                     {
-                        throw;
+                        var databaseValues = (Product)databaseEntry.ToObject();
+
+                        if (databaseValues.ProductName != clientValues.ProductName)
+                        {
+                            ModelState.AddModelError("ProductName", $"Current value: {databaseValues.ProductName}");
+                        }
+                        if (databaseValues.ProductPrice != clientValues.ProductPrice)
+                        {
+                            ModelState.AddModelError("ProductPrice", $"Current value: {databaseValues.ProductPrice}");
+                        }
+                        if (databaseValues.Description != clientValues.Description)
+                        {
+                            ModelState.AddModelError("Description", $"Current value: {databaseValues.Description}");
+                        }
+
+                        ModelState.AddModelError(string.Empty, "The record you attempted to edit was modified by another user after you got the original values.");
+
+                        productToUpdate.RowVersion = databaseValues.RowVersion;
+                        ModelState.Remove("RowVersion");
                     }
                 }
-                return RedirectToAction(nameof(Index));
             }
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryName", product.CategoryId);
-            return View(product);
+
+            ViewBag.CategoryId = new SelectList(_context.Categories, "CategoryId", "CategoryName", productToUpdate.CategoryId);
+            return View(productToUpdate);
         }
+
 
         // GET: Products/Delete/5
         public async Task<IActionResult> Delete(int? id)

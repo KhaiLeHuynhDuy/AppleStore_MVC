@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Apple.DataAccess.Migrations
 {
     [DbContext(typeof(AppleStoreDbContext))]
-    [Migration("20240914074032_IntergratedData")]
-    partial class IntergratedData
+    [Migration("20240914082612_DbSeed")]
+    partial class DbSeed
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -101,9 +101,8 @@ namespace Apple.DataAccess.Migrations
                     b.Property<double>("ProductPrice")
                         .HasColumnType("float");
 
-                    b.Property<byte[]>("RowVersionProduct")
+                    b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
-                        .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("rowversion");
 

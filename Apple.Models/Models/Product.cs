@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace Apple.Models.Models
@@ -15,7 +16,7 @@ namespace Apple.Models.Models
         public string? ProductName { get; set; }
 
         [Required]
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         [Required]
         public double ProductPrice { get; set; }
@@ -25,11 +26,10 @@ namespace Apple.Models.Models
 
         [ForeignKey("CategoryId")]
         public Category? Category { get; set; }
-
+        [AllowNull]
         public string? ImageURL { get; set; }
 
         [Timestamp]
-        [Required]
-        public byte[]? RowVersionProduct { get; set; }
+        public byte[]? RowVersion { get; set; }
     }
 }
