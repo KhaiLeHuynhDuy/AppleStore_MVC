@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Apple.DataAccess.Data;
 using Apple.Models.Models;
+using System.Drawing.Design;
 
 namespace AppleStore.Controllers
 {
@@ -87,18 +88,25 @@ namespace AppleStore.Controllers
         }
 
         // POST: Categories/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("CategoryId,CategoryName,DisplayOrder")] Category category)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(category);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    _context.Add(category);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception ex)
+                {
+                    // Log lỗi nếu cần thiết
+                    ModelState.AddModelError(string.Empty, "An error occurred while creating the category. Please try again.");
+                }
             }
+            // Nếu có lỗi, trả về lại view Create với các thông báo lỗi
             return View(category);
         }
 
@@ -110,7 +118,7 @@ namespace AppleStore.Controllers
                 return NotFound();
             }
 
-            var category = await _context.Categories.FindAsync(id);
+            var category = await _context.Categories.AsNoTracking().FirstOrDefaultAsync(c => c.CategoryId == id);
             if (category == null)
             {
                 return NotFound();
@@ -119,38 +127,69 @@ namespace AppleStore.Controllers
         }
 
         // POST: Categories/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("CategoryId,CategoryName,DisplayOrder")] Category category)
+        public async Task<IActionResult> Edit(int id, Category category, byte[] rowVersion)
         {
             if (id != category.CategoryId)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            var categoryToUpdate = await _context.Categories
+               // .AsNoTracking() // phai bo thuoc tinh nay neu khong thi se khong edit duoc do dbcontext khong theo doi
+                .FirstOrDefaultAsync(c => c.CategoryId == id);
+
+            if (categoryToUpdate == null)
+            {
+                ModelState.AddModelError(string.Empty, "Unable to save changes. The category was deleted by another user.");
+                return View(category);
+            }
+
+            // Thiết lập giá trị RowVersion cho đối tượng cần cập nhật
+            _context.Entry(categoryToUpdate).Property("RowVersion").OriginalValue = rowVersion;
+
+            if (await TryUpdateModelAsync<Category>(
+                categoryToUpdate,
+                "",
+                c => c.CategoryName, c => c.DisplayOrder))
             {
                 try
                 {
-                    _context.Update(category);
                     await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (DbUpdateConcurrencyException ex)
                 {
-                    if (!CategoryExists(category.CategoryId))
+                    var exceptionEntry = ex.Entries.Single();
+                    var clientValues = (Category)exceptionEntry.Entity;
+                    var databaseEntry = exceptionEntry.GetDatabaseValues();
+                    if (databaseEntry == null)
                     {
-                        return NotFound();
+                        ModelState.AddModelError(string.Empty, "Unable to save changes. The category was deleted by another user.");
                     }
                     else
                     {
-                        throw;
+                        var databaseValues = (Category)databaseEntry.ToObject();
+
+                        if (databaseValues.CategoryName != clientValues.CategoryName)
+                        {
+                            ModelState.AddModelError("CategoryName", $"Current value: {databaseValues.CategoryName}");
+                        }
+                        if (databaseValues.DisplayOrder != clientValues.DisplayOrder)
+                        {
+                            ModelState.AddModelError("DisplayOrder", $"Current value: {databaseValues.DisplayOrder}");
+                        }
+
+                        ModelState.AddModelError(string.Empty, "The record you attempted to edit was modified by another user after you got the original value. The edit operation was canceled and the current values in the database have been displayed. If you still want to edit this record, click the Save button again. Otherwise click the Back to List hyperlink.");
+
+                        categoryToUpdate.RowVersion = (byte[])databaseValues.RowVersion;
+                        ModelState.Remove("RowVersion");
                     }
                 }
-                return RedirectToAction(nameof(Index));
             }
-            return View(category);
+
+            return View(categoryToUpdate);
         }
 
         // GET: Categories/Delete/5

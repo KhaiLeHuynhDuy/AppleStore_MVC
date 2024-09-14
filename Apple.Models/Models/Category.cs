@@ -14,8 +14,12 @@ namespace Apple.Models.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int CategoryId { get; set; }
         [Required]
+        [StringLength(50),MinLength(3)]
         public string? CategoryName { get; set; }
         [Range(0, 5)]
+        [Required]
         public int DisplayOrder { get; set; }
+        [Timestamp]
+        public byte[] RowVersion { get; set; }
     }
 }
