@@ -134,7 +134,7 @@ namespace AppleStore.Controllers
         // POST: Products/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, byte[] rowVersion)
+        public async Task<IActionResult> Edit(int id, byte[] rowVersion, IFormFile? file)
         {
             var productToUpdate = await _productRepository.GetProductById(id);
 
@@ -156,6 +156,17 @@ namespace AppleStore.Controllers
             {
                 try
                 {
+                    if (file != null)
+                    {
+                        // Delete the old image if it exists
+                        if (!string.IsNullOrEmpty(productToUpdate.ImageURL))
+                        {
+                            DeleteOldImage(productToUpdate.ImageURL);
+                        }
+
+                        // Upload the new image and update the URL
+                        productToUpdate.ImageURL = UploadImage(file);
+                    }
                     _productRepository.Update(productToUpdate); // Cập nhật thông qua repository
                     await _productRepository.Save(); // Lưu thay đổi qua repository
                     return RedirectToAction(nameof(Index));
@@ -185,9 +196,11 @@ namespace AppleStore.Controllers
                         {
                             ModelState.AddModelError("Description", $"Current value: {databaseValues.Description}");
                         }
-
+                        if (databaseValues.ImageURL != clientValues.ImageURL)
+                        {
+                            ModelState.AddModelError("ImageURL", $"Current value: {databaseValues.ImageURL}");
+                        }
                         ModelState.AddModelError(string.Empty, "The record you attempted to edit was modified by another user after you got the original values.");
-
                         productToUpdate.RowVersion = databaseValues.RowVersion;
                         ModelState.Remove("RowVersion");
                     }
@@ -251,6 +264,21 @@ namespace AppleStore.Controllers
                 file.CopyTo(fileStream);
             }
             return Path.Combine(@"\images\product\" + fileName);
+        }
+        public void DeleteOldImage(string imagePath)
+        {
+            if (string.IsNullOrEmpty(imagePath))
+            {
+                throw new ArgumentException("Image path cannot be null or empty", nameof(imagePath));
+            }
+
+            string wwwRootPath = _webHostEnvironment.WebRootPath;
+            string filePath = Path.Combine(wwwRootPath, imagePath.TrimStart('\\'));
+
+            if (System.IO.File.Exists(filePath))
+            {
+                System.IO.File.Delete(filePath);
+            }
         }
     }
 }

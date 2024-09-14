@@ -9,7 +9,7 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Edit" method="post">
+        <form asp-action="Edit" method="post" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <!-- Hidden fields for ProductID and RowVersionProduct -->
@@ -49,7 +49,7 @@
             <!-- Image URL -->
             <div class="form-group">
                 <label asp-for="ImageURL" class="control-label"></label>
-                <input asp-for="ImageURL" class="form-control" />
+                <input type="file" name="file" class="form-control" />
                 <span asp-validation-for="ImageURL" class="text-danger"></span>
             </div>
 
