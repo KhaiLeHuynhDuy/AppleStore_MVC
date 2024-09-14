@@ -49,6 +49,11 @@
             <!-- Image URL -->
             <div class="form-group">
                 <label asp-for="ImageURL" class="control-label"></label>
+                @if(!String.IsNullOrEmpty(Model.ImageURL)){
+                    <div>
+                        <img src="@Model.ImageURL" alt="Product Image" style="max-width: 200px; max-height: 200px;" />
+                    </div>
+                }
                 <input type="file" name="file" class="form-control" />
                 <span asp-validation-for="ImageURL" class="text-danger"></span>
             </div>
