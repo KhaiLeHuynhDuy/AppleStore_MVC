@@ -39,7 +39,6 @@ namespace Apple.DataAccess.Migrations
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
-                        .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("rowversion");
 
@@ -90,7 +89,6 @@ namespace Apple.DataAccess.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ImageURL")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ProductName")
@@ -99,6 +97,12 @@ namespace Apple.DataAccess.Migrations
 
                     b.Property<double>("ProductPrice")
                         .HasColumnType("float");
+
+                    b.Property<byte[]>("RowVersionProduct")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
 
                     b.HasKey("ProductID");
 

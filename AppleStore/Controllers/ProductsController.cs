@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Apple.DataAccess.Data;
 using Apple.Models.Models;
+using Apple.Models.ViewModels;
 
 namespace AppleStore.Controllers
 {
@@ -18,12 +19,54 @@ namespace AppleStore.Controllers
         {
             _context = context;
         }
-
-        // GET: Products
-        public async Task<IActionResult> Index()
+        private IQueryable<Product> SortProduct(IQueryable<Product> products, string sortOrder)
         {
-            var appleStoreDbContext = _context.Products.Include(p => p.Category);
-            return View(await appleStoreDbContext.ToListAsync());
+            ViewData["NameSortParam"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            ViewData["PriceSortParam"] = sortOrder == "PriceOrder" ? "price_desc" : "PriceOrder";
+            switch (sortOrder)
+            {
+                case "name_desc":
+                    products = products.OrderByDescending(c => c.ProductName);
+                    break;
+                case "PriceOrder":
+                    products =  products.OrderBy(c => c.ProductPrice);
+                    break;
+                case "price_desc":
+                    products = products.OrderByDescending(c => c.ProductPrice);
+                    break;
+                default:
+                    products = products.OrderBy(c => c.ProductName);
+                    break;
+            }
+            return products;
+        }
+        private IQueryable<Product> SearchProduct(IQueryable<Product> products, string searchString)
+        {
+            ViewData["Filter"] = searchString;
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                var searchLower = searchString.ToLower();
+                products = products.Where(p => p.ProductName != null
+                                                  && p.ProductName.ToLower().Contains(searchLower));
+            }
+            products.OrderBy(c => c.ProductName);
+            
+            return products;
+        }
+        // GET: Products
+        public async Task<IActionResult> Index(string sortOrder, string searchString)
+        {
+            var viewModel = new ProductViewModels();
+            
+            IQueryable<Product> products = _context.Products.AsQueryable()
+                .Include(p=>p.Category)
+                .AsNoTracking();
+            //goi ham sort
+            products = SortProduct(products, sortOrder);
+            //goi ham search
+            products = SearchProduct(products, searchString);
+            viewModel.Products = await products.ToListAsync();
+            return View(viewModel);
         }
 
         // GET: Products/Details/5

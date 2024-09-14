@@ -20,6 +20,6 @@ namespace Apple.Models.Models
         [Required]
         public int DisplayOrder { get; set; }
         [Timestamp]
-        public byte[] RowVersion { get; set; }
+        public byte[]? RowVersion { get; set; }
     }
 }

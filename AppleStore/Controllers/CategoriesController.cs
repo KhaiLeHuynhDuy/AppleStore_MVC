@@ -63,24 +63,8 @@ namespace AppleStore.Controllers
             categories = SearchCategory(categories, searchString);
             return View(await categories.ToListAsync());
         }
-        // GET: Categories/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
 
-            var category = await _context.Categories
-                .FirstOrDefaultAsync(m => m.CategoryId == id);
-            if (category == null)
-            {
-                return NotFound();
-            }
-
-            return View(category);
-        }
-
+        // GET: Categories/Create
         // GET: Categories/Create
         public IActionResult Create()
         {
@@ -96,17 +80,37 @@ namespace AppleStore.Controllers
             {
                 try
                 {
+                    // RowVersion is not set manually; it is handled by EF Core
                     _context.Add(category);
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Index));
                 }
                 catch (Exception ex)
                 {
-                    // Log lỗi nếu cần thiết
+                    // Log exception if needed
                     ModelState.AddModelError(string.Empty, "An error occurred while creating the category. Please try again.");
+                    return View(category);
                 }
             }
-            // Nếu có lỗi, trả về lại view Create với các thông báo lỗi
+            return View(category);
+        }
+
+
+        // GET: Categories/Details/5
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var category = await _context.Categories
+                .FirstOrDefaultAsync(m => m.CategoryId == id);
+            if (category == null)
+            {
+                return NotFound();
+            }
+
             return View(category);
         }
 
@@ -183,7 +187,7 @@ namespace AppleStore.Controllers
 
                         ModelState.AddModelError(string.Empty, "The record you attempted to edit was modified by another user after you got the original value. The edit operation was canceled and the current values in the database have been displayed. If you still want to edit this record, click the Save button again. Otherwise click the Back to List hyperlink.");
 
-                        categoryToUpdate.RowVersion = (byte[])databaseValues.RowVersion;
+                        categoryToUpdate.RowVersion = databaseValues.RowVersion;
                         ModelState.Remove("RowVersion");
                     }
                 }
