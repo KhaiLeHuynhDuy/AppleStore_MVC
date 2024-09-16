@@ -84,7 +84,7 @@ namespace AppleStore.Controllers
                     await _categoryRepository.Save();
                     return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateException ex)
+                catch (DbUpdateException)
                 {
                     // Log exception if needed
                     ModelState.AddModelError(string.Empty, "An error occurred while creating the category. Please try again.");

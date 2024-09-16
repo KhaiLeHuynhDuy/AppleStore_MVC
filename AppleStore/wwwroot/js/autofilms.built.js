@@ -4586,7 +4586,7 @@
                 var r = null;
                 Array.from(document.querySelectorAll(".theme-dark")).find(function (t) {
                     return t.contains(e.player.el)
-                }) && (r = n() ? "/ac/ac-video-posterframe/4.0/images/ac_video_poster_dark_960x540_2x.jpg" : "/ac/ac-video-posterframe/4.0/images/ac_video_poster_dark_960x540.jpg");
+                }) && (r = n() ? "/ac/ac-video-posterframe/4.0/~/images/home/ac_video_poster_dark_960x540_2x.jpg" : "/ac/ac-video-posterframe/4.0/~/images/home/ac_video_poster_dark_960x540.jpg");
                 var o, s = t.getAttribute("data-films-options");
                 (o = s ? JSON.parse(s) : null) && o.endState && o.endState.items.forEach(function (e) {
                     if (e.url && 0 === e.url.indexOf("#")) {
@@ -12729,8 +12729,8 @@
     343: [function (e, t, i) {
         "use strict";
         var n = e("./PosterFrame")
-            , r = "/ac/ac-video-posterframe/4.0/images/ac_video_poster_960x540.jpg"
-            , o = "/ac/ac-video-posterframe/4.0/images/ac_video_poster_960x540_2x.jpg";
+            , r = "/ac/ac-video-posterframe/4.0/~/images/home/ac_video_poster_960x540.jpg"
+            , o = "/ac/ac-video-posterframe/4.0/~/images/home/ac_video_poster_960x540_2x.jpg";
         t.exports = function (e) {
             if (e.src = e.src || (e.is2x ? o : r),
                 e.useNativePoster) {
