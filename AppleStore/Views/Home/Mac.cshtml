@@ -1,0 +1,45 @@
+﻿@model IEnumerable<Apple.Models.Models.Product>
+<div class="container">
+    <div class="row">
+        @foreach (var item in Model)
+        {
+            <div class="col-lg-6 mb-4">
+                <div class="card h-100">
+                    <img src="@item.ImageURL" class="card-img-top" alt="Product Image" />
+                    <div class="card-body">
+                        <h5 class="card-title">@item.ProductName</h5>
+                        <p class="card-text">@item.Description</p>
+                        <p class="card-text text-primary">Price: $@item.ProductPrice</p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+<style>
+    .card-img-top {
+        object-fit: cover;
+        height: 200px;
+    }
+
+    .card {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s ease-in-out;
+    }
+
+        .card:hover {
+            transform: scale(1.05);
+        }
+
+    .card-title {
+        font-size: 1.25rem;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .card-text {
+        color: #666;
+        font-size: 1rem;
+    }
+
+</style>

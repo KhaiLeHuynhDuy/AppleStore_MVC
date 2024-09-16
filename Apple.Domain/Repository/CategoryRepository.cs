@@ -19,8 +19,8 @@ namespace Apple.Domain.Repository
         }
         IQueryable<Category> ICategoryRepository.GetAllCategory()
         {
-            return _context.Categories
-                .AsNoTracking();
+            return _context.Categories;
+               
         }
 
         public async Task<Category?>GetCategoryById(int id)

@@ -131,7 +131,6 @@ namespace AppleStore.Controllers
             return View(product);
         }
 
-        // POST: Products/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, byte[] rowVersion, IFormFile? file)
@@ -143,7 +142,6 @@ namespace AppleStore.Controllers
                 var deletedProduct = new Product();
                 await TryUpdateModelAsync(deletedProduct);
                 ModelState.AddModelError(string.Empty, "Unable to save changes. The product was deleted by another user.");
-
                 ViewData["CategoryId"] = new SelectList(_categoryRepository.GetAllCategory(), "CategoryId", "CategoryName", deletedProduct.CategoryId);
                 return View(deletedProduct);
             }
@@ -167,8 +165,10 @@ namespace AppleStore.Controllers
                         // Upload the new image and update the URL
                         productToUpdate.ImageURL = UploadImage(file);
                     }
+
                     _productRepository.Update(productToUpdate); // Cập nhật thông qua repository
                     await _productRepository.Save(); // Lưu thay đổi qua repository
+
                     return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException ex)
@@ -207,10 +207,10 @@ namespace AppleStore.Controllers
                 }
             }
 
-            ViewData["CategoryId"] = new SelectList(_categoryRepository.GetAllCategory(), "CategoryId", "CategoryName", productToUpdate.CategoryId);
+            // Tạo SelectList cho dropdown CategoryId
+            ViewBag["CategoryId"] = new SelectList(_categoryRepository.GetAllCategory(), "CategoryId", "CategoryName", productToUpdate.CategoryId);
             return View(productToUpdate);
         }
-
 
         // GET: Products/Delete/5
         public async Task<IActionResult> Delete(int? id)

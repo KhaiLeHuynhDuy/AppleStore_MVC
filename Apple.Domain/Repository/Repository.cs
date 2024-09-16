@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Apple.Domain.Repository.IRepository;
+using Apple.Models.Models;
 
 public class Repository<T> : IRepository<T> where T : class
 {
@@ -39,7 +40,8 @@ public class Repository<T> : IRepository<T> where T : class
         if (entity == null)
             throw new ArgumentNullException(nameof(entity));
 
-        _dbSet.Update(entity); // Cập nhật thực thể
+        _dbSet.Update(entity);
+
     }
 
     public void Delete(T entity)

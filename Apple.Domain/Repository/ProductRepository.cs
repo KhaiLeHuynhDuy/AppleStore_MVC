@@ -21,17 +21,21 @@ namespace Apple.Domain.Repository
         {
 
             return _context.Products
-                .Include(p => p.Category)
-                .AsNoTracking();
+                .Include(p => p.Category);
         }
 
         public async Task<Product?> GetProductById(int id)
         {
             return await _context.Products
                 .Include(p => p.Category)
-                .AsNoTracking()
                 .FirstOrDefaultAsync(p => p.ProductID == id);
         }
 
+        public IQueryable<Product?> GetProductByCategory(string categoryname)
+        {
+            return _context.Products
+                .Include(p => p.Category)
+                .Where(p => p.Category.CategoryName == categoryname);
+        }
     }
 }
