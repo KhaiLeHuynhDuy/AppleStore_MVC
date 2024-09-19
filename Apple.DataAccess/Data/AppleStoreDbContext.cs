@@ -1,4 +1,6 @@
 ﻿using Apple.Models.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -8,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Apple.DataAccess.Data
 {
-    public class AppleStoreDbContext:DbContext
+    public class AppleStoreDbContext:IdentityDbContext<IdentityUser>
     {
         public AppleStoreDbContext(DbContextOptions<AppleStoreDbContext>options):base(options) 
         {
@@ -18,6 +20,7 @@ namespace Apple.DataAccess.Data
         public DbSet<Category> Categories { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<Product>().ToTable("Product");
             modelBuilder.Entity<Category>().ToTable("Category");
             modelBuilder.Entity<Category>().HasData(
