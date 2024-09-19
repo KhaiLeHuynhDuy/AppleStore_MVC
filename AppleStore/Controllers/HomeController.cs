@@ -17,6 +17,11 @@ namespace AppleStore.Controllers
         {
             return View();
         }
+        public async Task<IActionResult> Details(int id)
+        {
+            var productdetails = await _productRepository.GetProductById(id);
+            return View(productdetails);
+        }
 
         public IActionResult Privacy()
         {
@@ -28,30 +33,31 @@ namespace AppleStore.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+        public IActionResult DisplayProductByCategory(string category)
+        {
+            var product = _productRepository.GetProductByCategory(category);
+            return View(product);
+        }
         public IActionResult IPhone()
         {
-            var iphone = _productRepository.GetProductByCategory("Iphone");
-            return View(iphone);
+            return DisplayProductByCategory("Iphone");
         }
         public IActionResult IPad()
         {
-            var ipad = _productRepository.GetProductByCategory("Ipad");   
-            return View(ipad);
+            return DisplayProductByCategory("Ipad");
         }
         public IActionResult Mac()
         {
-            var macbook = _productRepository.GetProductByCategory("Mac");
-            return View(macbook);
+            return DisplayProductByCategory("Mac");
         }
         public IActionResult Airpod()
         {
-            var airpod = _productRepository.GetProductByCategory("Airpod");
-            return View(airpod);
+            return DisplayProductByCategory("Airpod");
         }
         public IActionResult Watch()
         {
-            var watch = _productRepository.GetProductByCategory("Watch");
-            return View();
+            return DisplayProductByCategory("Watch");
         }
+
     }
 }

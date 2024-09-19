@@ -4,14 +4,17 @@
         @foreach (var item in Model)
         {
             <div class="col-lg-6 mb-4">
-                <div class="card h-100">
-                    <img src="@item.ImageURL" class="card-img-top" alt="Product Image" />
-                    <div class="card-body">
-                        <h5 class="card-title">@item.ProductName</h5>
-                        <p class="card-text">@item.Description</p>
-                        <p class="card-text text-primary">Price: $@item.ProductPrice</p>
+                
+                    <div class="card h-100">
+                        <a asp-controller="Home" asp-action="Details" asp-route-id="@item.ProductID">
+                        <img src="@item.ImageURL" class="card-img-top" alt="Product Image" />
+                        </a>
+                        <div class="card-body">
+                            <h5 class="card-title">@item.ProductName</h5>
+                            <p class="card-text">@item.Description</p>
+                            <p class="card-text text-primary">Price: $@item.ProductPrice</p>
+                        </div>
                     </div>
-                </div>
             </div>
         }
     </div>

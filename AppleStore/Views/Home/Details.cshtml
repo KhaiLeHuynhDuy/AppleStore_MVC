@@ -1,0 +1,205 @@
+﻿@model Apple.Models.Models.Product
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Product Details - @Model.ProductName</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <style>
+        /* Global Styling */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "San Francisco", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .product-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .left-column {
+            flex: 1;
+            text-align: center;
+            padding: 20px;
+        }
+
+            .left-column img {
+                width: 100%;
+                max-width: 400px;
+                transition: all 0.3s ease;
+            }
+
+        .right-column {
+            flex: 1;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-description {
+            margin-bottom: 20px;
+        }
+
+            .product-description span {
+                font-size: 14px;
+                color: #007bff;
+                text-transform: uppercase;
+                font-weight: 500;
+            }
+
+            .product-description h1 {
+                font-size: 36px;
+                color: #333;
+                margin: 10px 0;
+            }
+
+            .product-description p {
+                color: #777;
+                line-height: 1.6;
+            }
+
+        .product-configuration {
+            margin: 30px 0;
+        }
+
+        .color-choose {
+            display: flex;
+            justify-content: flex-start;
+            gap: 10px;
+        }
+
+            .color-choose input[type="radio"] {
+                display: none;
+            }
+
+            .color-choose label {
+                display: block;
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                cursor: pointer;
+                transition: border 0.3s;
+            }
+
+                .color-choose label:hover {
+                    border: 2px solid #007bff;
+                }
+
+            .color-choose input[type="radio"]:checked + label {
+                border: 3px solid #007bff;
+            }
+
+        .product-price {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .cart-btn {
+            background-color: #28a745;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+            .cart-btn:hover {
+                background-color: #218838;
+            }
+    </style>
+</head>
+
+<body>
+
+    <main class="container">
+        <div class="product-container">
+            <!-- Left Column -->
+            <div class="left-column">
+                <img id="product-image" src="@Model.ImageURL" alt="@Model.ProductName">
+
+            </div>
+
+            <!-- Right Column -->
+            <div class="right-column">
+                <!-- Product Description -->
+                <div class="product-description">
+
+                    @if (Model?.Category?.CategoryName != null)
+                    {
+                        <span>@Model.Category.CategoryName</span>
+                    }
+                    else
+                    {
+                        <span>Category not available</span>
+                    }
+
+                    <h1>@Model.ProductName</h1>
+                    <p>@Model.Description</p>
+                </div>
+
+                <!-- Product Color Options -->
+                <div class="product-configuration">
+                    <h5>Select Color:</h5>
+                    <div class="color-choose">
+                        <div>
+                            <input type="radio" id="red" name="color" value="red" checked>
+                            <label for="red" style="background-color: #C91524;"></label>
+                        </div>
+                        <div>
+                            <input type="radio" id="blue" name="color" value="blue">
+                            <label for="blue" style="background-color: #314780;"></label>
+                        </div>
+                        <div>
+                            <input type="radio" id="black" name="color" value="black">
+                            <label for="black" style="background-color: #323232;"></label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Price -->
+                <div class="product-price">
+                    $@Model.ProductPrice
+                </div>
+
+                <!-- Add to Cart Button -->
+                <a href="#" class="cart-btn">Add to Cart</a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // JavaScript to switch between product colors
+        document.querySelectorAll('input[name="color"]').forEach(radio => {
+            radio.addEventListener('change', function () {
+                const color = this.value;
+                const img = document.getElementById('product-image');
+                img.src = `images/${color}.png`; // Replace with dynamic image URLs
+            });
+        });
+    </script>
+
+</body>
+</html>
