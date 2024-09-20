@@ -21,27 +21,19 @@ namespace AppleStore.Controllers
         {
             _categoryRepository = categoryRepository;
         }
-        //sort category theo ten, displayorder
+        //sort category theo name, displayorder
         private IQueryable<Category> SortCategory(IQueryable<Category>categories, string sortOrder)
         {
             ViewData["NameSortParam"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
             ViewData["DisplaySortParam"] = sortOrder == "DisplayOrder" ? "display_desc" : "DisplayOrder";
-            switch (sortOrder)
+            categories = sortOrder switch
             {
-                case "name_desc":
-                    categories = categories.OrderByDescending(c => c.CategoryName);
-                    break;
-                case "DisplayOrder":
-                    categories = categories.OrderBy(c => c.DisplayOrder);
-                    break;
-                case "display_desc":
-                    categories = categories.OrderByDescending(c => c.DisplayOrder);
-                    break;
-                default:
-                    categories = categories.OrderBy(c => c.CategoryName);
-                    break;
-            }
-           return categories;
+                "name_desc" => categories.OrderByDescending(c => c.CategoryName),
+                "DisplayOrder" => categories.OrderBy(c => c.DisplayOrder),
+                "display_desc" => categories.OrderByDescending(c => c.DisplayOrder),
+                _ => categories.OrderBy(c => c.CategoryName),
+            };
+            return categories;
         }
         private IQueryable<Category> SearchCategory(IQueryable<Category>categories, string searchString)
         {
@@ -79,7 +71,6 @@ namespace AppleStore.Controllers
             {
                 try
                 {
-                    // RowVersion will be handled by EF Core automatically
                     await _categoryRepository.Add(category);
                     await _categoryRepository.Save();
                     return RedirectToAction(nameof(Index));
@@ -93,8 +84,6 @@ namespace AppleStore.Controllers
             }
             return View(category);
         }
-
-
 
         // GET: Categories/Details/5
         public async Task<IActionResult> Details(int id)
@@ -119,7 +108,6 @@ namespace AppleStore.Controllers
             return View(category);
         }
 
-
         // POST: Categories/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -130,7 +118,7 @@ namespace AppleStore.Controllers
             if (categoryToUpdate == null)
             {
                 ModelState.AddModelError(string.Empty, "Unable to save changes. The category was deleted by another user.");
-                return View(new Category()); // Trả về thông báo lỗi
+                return View(new Category());
             }
 
             categoryToUpdate.RowVersion = rowVersion;

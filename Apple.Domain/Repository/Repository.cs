@@ -32,7 +32,7 @@ public class Repository<T> : IRepository<T> where T : class
         if (entity == null)
             throw new ArgumentNullException(nameof(entity));
 
-        await _dbSet.AddAsync(entity); // Thêm thực thể vào DbSet một cách bất đồng bộ
+        await _dbSet.AddAsync(entity); 
     }
 
     public void Update(T entity)
@@ -49,7 +49,7 @@ public class Repository<T> : IRepository<T> where T : class
         if (entity == null)
             throw new ArgumentNullException(nameof(entity));
 
-        _dbSet.Remove(entity); // Xóa thực thể
+        _dbSet.Remove(entity);
     }
 
     public void DeleteAll(IQueryable<T> entities)
@@ -57,11 +57,11 @@ public class Repository<T> : IRepository<T> where T : class
         if (entities == null)
             throw new ArgumentNullException(nameof(entities));
 
-        _dbSet.RemoveRange(entities); // Xóa tất cả thực thể từ IQueryable
+        _dbSet.RemoveRange(entities);
     }
 
     public async Task Save()
     {
-        await _context.SaveChangesAsync(); // Lưu tất cả thay đổi vào cơ sở dữ liệu một cách bất đồng bộ
+        await _context.SaveChangesAsync();
     }
 }

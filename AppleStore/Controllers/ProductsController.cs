@@ -28,22 +28,13 @@ namespace AppleStore.Controllers
             ViewData["NameSortParam"] = string.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
             ViewData["PriceSortParam"] = sortOrder == "PriceOrder" ? "price_desc" : "PriceOrder";
 
-            switch (sortOrder)
+            products = sortOrder switch
             {
-                case "name_desc":
-                    products = products.OrderByDescending(c => c.ProductName);
-                    break;
-                case "PriceOrder":
-                    products = products.OrderBy(c => c.ProductPrice);
-                    break;
-                case "price_desc":
-                    products = products.OrderByDescending(c => c.ProductPrice);
-                    break;
-                default:
-                    products = products.OrderBy(c => c.ProductName);
-                    break;
-            }
-
+                "name_desc" => products.OrderByDescending(c => c.ProductName),
+                "PriceOrder" => products.OrderBy(c => c.ProductPrice),
+                "price_desc" => products.OrderByDescending(c => c.ProductPrice),
+                _ => products.OrderBy(c => c.ProductName),
+            };
             return products;
         }
 
@@ -110,7 +101,6 @@ namespace AppleStore.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // Nếu có lỗi, hãy làm lại SelectList cho dropdown để người dùng không bị mất dữ liệu
             ViewData["CategoryId"] = new SelectList(_categoryRepository.GetAllCategory(), "CategoryId", "CategoryName", product.CategoryId);
             return View(product);
         }

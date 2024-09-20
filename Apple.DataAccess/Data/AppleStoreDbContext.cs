@@ -21,7 +21,6 @@ namespace Apple.DataAccess.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<Product>().ToTable("Product");
             modelBuilder.Entity<Category>().ToTable("Category");
             modelBuilder.Entity<Category>().HasData(
                 new Category { CategoryId = 1, CategoryName = "Iphone", DisplayOrder = 1 },
@@ -29,6 +28,7 @@ namespace Apple.DataAccess.Data
                 new Category { CategoryId = 3, CategoryName = "Ipad", DisplayOrder = 3 },
                 new Category { CategoryId = 4, CategoryName = "Airpod", DisplayOrder = 4 }
             );
+            modelBuilder.Entity<Product>().ToTable("Product");
             modelBuilder.Entity<Product>().HasData(
                 new Product { ProductID = 1, ProductName = "iPhone 13", Description = "Latest iPhone", ProductPrice = 999.99, CategoryId = 1, ImageURL = "" },
                 new Product { ProductID = 2, ProductName = "MacBook Air", Description = "M1 MacBook", ProductPrice = 1299.99, CategoryId = 2, ImageURL = "" },
