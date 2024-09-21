@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Apple.Models.Models;
 using Apple.Models.ViewModels;
 using Apple.Domain.Repository.IRepository;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AppleStore.Controllers
 {

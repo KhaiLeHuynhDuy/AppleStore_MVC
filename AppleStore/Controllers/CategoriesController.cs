@@ -10,6 +10,7 @@ using Apple.Models.Models;
 using System.Drawing.Design;
 using Apple.Domain.Repository.IRepository;
 using Apple.Domain.Repository;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AppleStore.Controllers
 {

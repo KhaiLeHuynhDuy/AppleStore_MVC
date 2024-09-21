@@ -370,92 +370,133 @@
     </div>
 
 <!--  End iPhone Comparison Section -->
+ <style>
+  .container-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-gap: 20px;
+      justify-items: center;
+      margin: 20px;
+  }
 
-  <!-- fruit section -->
+  .product {
+      width: 100%;
+      padding: 20px;
+      background-color: #fff;
+      text-align: center;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
 
-  <section class="fruit_section layout_padding">
-    <div class="container">
-      <div class="heading_container">
-        <hr>
-        <h2>
-          Fresh Fruit
-        </h2>
-      </div>
+  .product img {
+      max-width: 100%;
+      height: auto;
+      margin-bottom: 10px;
+      border-radius: 10px;
+  }
+
+  .product h2 {
+      font-size: 24px;
+      margin-bottom: 10px;
+  }
+
+  .product p {
+      margin-bottom: 10px;
+      font-size: 16px;
+      color: #555;
+  }
+
+  .product button {
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+      margin-right: 10px;
+      border-radius:15px;
+  }
+
+  .product button:hover {
+      background-color: #0069d9;
+  }
+
+        
+
+  .trade-in {
+      grid-column: span 2;
+      padding: 20px;
+      background-color: #fff;
+      text-align: center;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .trade-in h2 {
+      font-size: 24px;
+      margin-bottom: 10px;
+  }
+
+  .trade-in p {
+      margin-bottom: 10px;
+      font-size: 16px;
+      color: #555;
+  }
+
+  .trade-in button {
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+  }
+
+  .trade-in button:hover {
+      background-color: #0069d9;
+  }
+
+ 
+
+</style>
+
+<div class="container-grid">
+    <div class="product">
+        <img src="https://www.apple.com/v/home/ad/images/heroes/watch-ultra/watch-ultra-hero.jpg" alt="Apple Watch Ultra">
+        <h2>Apple Watch Ultra</h2>
+        <p>New finish. Never quit.</p>
+        <button>Learn more</button>
+        <button>Buy</button>
     </div>
-    <div class="container-fluid">
-
-      <div class="fruit_container">
-        <div class="box">
-          <img src="/images/home/cycling_rpm__f5qwe54klkmu_large.png" alt="">
-          <div class="link_box">
-            <h5>
-              Orange
-            </h5>
-            <a href="">
-              Buy Now
-            </a>
-          </div>
-        </div>
-        <div class="box">
-          <img src="~/images/home/f-2.jpg" alt="">
-          <div class="link_box">
-            <h5>
-              Blueberry
-            </h5>
-            <a href="">
-              Buy Now
-            </a>
-          </div>
-        </div>
-        <div class="box">
-          <img src="~/images/home/f-3.jpg" alt="">
-          <div class="link_box">
-            <h5>
-              Banana
-            </h5>
-            <a href="">
-              Buy Now
-            </a>
-          </div>
-        </div>
-        <div class="box">
-          <img src="~/images/home/f-4.jpg" alt="">
-          <div class="link_box">
-            <h5>
-              Apple
-            </h5>
-            <a href="">
-              Buy Now
-            </a>
-          </div>
-        </div>
-        <div class="box">
-          <img src="~/images/home/f-5.jpg" alt="">
-          <div class="link_box">
-            <h5>
-              Mango
-            </h5>
-            <a href="">
-              Buy Now
-            </a>
-          </div>
-        </div>
-        <div class="box">
-          <img src="~/images/home/f-6.jpg" alt="">
-          <div class="link_box">
-            <h5>
-              Strawberry
-            </h5>
-            <a href="">
-              Buy Now
-            </a>
-          </div>
-        </div>
-      </div>
+    <div class="product">
+        <img src="https://www.apple.com/v/home/ad/images/heroes/airpods-4/airpods-4-hero.jpg" alt="Apple AirPods 4">
+        <h2>AirPods 4</h2>
+        <p>Iconic. Now supersonic. Available with Active Noise Cancellation.</p>
+        <button>Learn more</button>
+        <button>Buy</button>
     </div>
-  </section>
-  
-  <!-- end fruit section -->
+    <div class="product">
+        <img src="https://www.apple.com/v/home/ad/images/heroes/airpods-pro-2/airpods-pro-2-hero.jpg" alt="Apple AirPods Pro 2">
+        <h2>AirPods Pro 2</h2>
+        <p>Hearing Aid and Hearing Test features coming with a free software update this fall.</p>
+        <button>Learn more</button>
+        <button>Buy</button>
+    </div>
+    <div class="product">
+        <img src="https://www.apple.com/v/home/ad/images/heroes/airpods-max/airpods-max-hero.jpg" alt="Apple AirPods Max">
+        <h2>AirPods Max</h2>
+        <p>Symphonic boom.</p>
+        <button>Learn more</button>
+        <button>Buy</button>
+    </div>
+    <div class="trade-in">
+        <h2 class>Trade In</h2>
+        <p>Get $180-$650 in credit when you trade in iPhone 12 or higher.</p>
+        <button style="border-radius:15px">Get your estimate</button>
+    </div>
+</div>
 
   <!-- contact section -->
   <section class="contact_section layout_padding-bottom">

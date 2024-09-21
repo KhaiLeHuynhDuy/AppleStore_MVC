@@ -18,6 +18,7 @@ namespace Apple.DataAccess.Data
         }
         public DbSet<Product> Products { get; set; }
         public DbSet<Category> Categories { get; set; }
+        public DbSet<ApplicationUser> Users {  get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -35,6 +36,7 @@ namespace Apple.DataAccess.Data
                 new Product { ProductID = 3, ProductName = "iPad Pro", Description = "Latest iPad Pro", ProductPrice = 899.99, CategoryId = 3, ImageURL = "" },
                 new Product { ProductID = 4, ProductName = "AirPods Pro", Description = "Wireless Earbuds", ProductPrice = 249.99, CategoryId = 4, ImageURL = "" }
             );
+            
         }
 
     }
