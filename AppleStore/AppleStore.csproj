@@ -28,6 +28,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Apple.DataAccess\Apple.DataAccess.csproj" />
     <ProjectReference Include="..\Apple.Domain\Apple.Domain.csproj" />
+    <ProjectReference Include="..\Apple.Models\Apple.Models.csproj" />
+    <ProjectReference Include="..\Apple.Utility\Apple.Utility.csproj" />
   </ItemGroup>
 
   <ItemGroup>

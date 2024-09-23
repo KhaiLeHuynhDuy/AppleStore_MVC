@@ -1,21 +1,23 @@
 ﻿using Apple.DataAccess.Data;
 using Apple.Domain.Repository.IRepository;
 using Apple.Models.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
 namespace Apple.Domain.Repository
 {
-    public class UserRepository : Repository<ApplicationUser>, IUserRepository
+    public class ApplicationUserRepository : Repository<ApplicationUser>, IApplicationUserRepository
     {
         private readonly AppleStoreDbContext _context;
-        public UserRepository(AppleStoreDbContext context) : base(context)
+       
+        public ApplicationUserRepository(AppleStoreDbContext context) : base(context)
         {
             _context = context;
+            
         }
         public IQueryable<ApplicationUser> GetAllApplicationUsers()
         {
@@ -34,5 +36,7 @@ namespace Apple.Domain.Repository
                 .Where(u=>u.Roles.RoleName == rolename)
                 .FirstOrDefaultAsync();
         }
+
+       
     }
 }

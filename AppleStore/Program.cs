@@ -15,6 +15,7 @@ builder.Services.AddDbContext<AppleStoreDbContext>(options => options.UseSqlServ
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IEmailSender,EmailSenderRepository>();
+builder.Services.AddScoped<IApplicationUserRepository, ApplicationUserRepository>();
 var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

@@ -56,6 +56,9 @@ namespace Apple.DataAccess.Data
                     PhoneNumber = "0123456789",
                     Password = "user1@aa",
                     RoleId = 2,
+                    ImagesUser = "",
+                    Active = false,
+                    Sex = 0
                 },
                 new ApplicationUser
                 {
@@ -67,6 +70,9 @@ namespace Apple.DataAccess.Data
                     PhoneNumber = "0987654321",
                     Password = "user2@bb",
                     RoleId = 2,
+                    ImagesUser = "",
+                    Active = false,
+                    Sex = 1
                 },
                 new ApplicationUser
                 {
@@ -78,6 +84,9 @@ namespace Apple.DataAccess.Data
                     PhoneNumber = "0934567890",
                     Password = "user3@cc",
                     RoleId = 2,
+                    ImagesUser = "",
+                    Active = false,
+                    Sex = 0
                 },
                 new ApplicationUser
                 {
@@ -89,6 +98,9 @@ namespace Apple.DataAccess.Data
                     PhoneNumber = "0908765432",
                     Password = "employee1@dd",
                     RoleId = 3,
+                    ImagesUser = "",
+                    Active = true,
+                    Sex = 1
                 }
             );
             modelBuilder.Entity<UserAdmin>().ToTable("UserAdmin");

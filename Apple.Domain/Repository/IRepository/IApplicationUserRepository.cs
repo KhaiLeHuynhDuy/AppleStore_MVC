@@ -7,11 +7,12 @@ using System.Threading.Tasks;
 
 namespace Apple.Domain.Repository.IRepository
 {
-    public interface IUserRepository:IRepository<ApplicationUser>
+    public interface IApplicationUserRepository:IRepository<ApplicationUser>
     {
         IQueryable<ApplicationUser> GetAllApplicationUsers();
         Task<ApplicationUser?> GetApplicationUserById(int id);
         Task<ApplicationUser?> GetApplicationUserByRole(string rolename);
         
+
     }
 }
