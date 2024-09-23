@@ -8,15 +8,20 @@ using System.Threading.Tasks;
 
 namespace Apple.Models.Models
 {
-    public class Role
+    public class UserAdmin
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int UserAdminId { get; set; }
+        [Required]
+        [StringLength(50)]
+        public string? UserName { get; set; }
+        [Required]
+        [StringLength(50)]
+        public string? Password { get; set; }
         public int RoleId { get; set; }
 
-        [Required]
-        [StringLength(10)]
-        public string RoleName { get; set; }
+        [ForeignKey("RoleId")]
+        public Role? Roles { get; set; }
     }
-
 }

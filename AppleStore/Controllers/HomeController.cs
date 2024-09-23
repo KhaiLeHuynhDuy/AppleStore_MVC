@@ -12,7 +12,6 @@ namespace AppleStore.Controllers
         {
             _productRepository = productRepository;
         }
-
         public IActionResult Index()
         {
             return View();
@@ -22,12 +21,10 @@ namespace AppleStore.Controllers
             var productdetails = await _productRepository.GetProductById(id);
             return View(productdetails);
         }
-
         public IActionResult Privacy()
         {
             return View();
         }
-
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

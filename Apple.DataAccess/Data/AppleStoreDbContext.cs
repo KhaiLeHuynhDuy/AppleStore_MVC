@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Apple.DataAccess.Data
 {
-    public class AppleStoreDbContext:IdentityDbContext<IdentityUser>
+    public class AppleStoreDbContext:DbContext
     {
         public AppleStoreDbContext(DbContextOptions<AppleStoreDbContext>options):base(options) 
         {
@@ -18,7 +18,9 @@ namespace Apple.DataAccess.Data
         }
         public DbSet<Product> Products { get; set; }
         public DbSet<Category> Categories { get; set; }
-        public DbSet<ApplicationUser> Users {  get; set; }
+        public DbSet<ApplicationUser> ApplicationUsers {  get; set; }
+        public DbSet<UserAdmin> UserAdmins { get; set; }
+        public DbSet<Role> Roles { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -36,8 +38,70 @@ namespace Apple.DataAccess.Data
                 new Product { ProductID = 3, ProductName = "iPad Pro", Description = "Latest iPad Pro", ProductPrice = 899.99, CategoryId = 3, ImageURL = "" },
                 new Product { ProductID = 4, ProductName = "AirPods Pro", Description = "Wireless Earbuds", ProductPrice = 249.99, CategoryId = 4, ImageURL = "" }
             );
-            
+            modelBuilder.Entity<Role>().ToTable("Role");
+            modelBuilder.Entity<Role>().HasData(
+                new Role { RoleId = 1, RoleName = "Admin" },
+                new Role { RoleId = 2, RoleName = "User" },
+                new Role { RoleId = 3, RoleName = "Employee" }
+            );
+            modelBuilder.Entity<ApplicationUser>().ToTable("ApplicationUser");
+            modelBuilder.Entity<ApplicationUser>().HasData(
+                new ApplicationUser
+                {
+                    UserId = 1,
+                    UserName = "user1",
+                    Address = "307 Hoang Huu Nam, Thu Duc",
+                    Email = "user1@gmail.com",
+                    Name = "Nguyen Van A",
+                    PhoneNumber = "0123456789",
+                    Password = "user1@aa",
+                    RoleId = 2,
+                },
+                new ApplicationUser
+                {
+                    UserId = 2,
+                    UserName = "user2",
+                    Address = "456 Le Loi, TP.HCM",
+                    Email = "user2@gmail.com",
+                    Name = "Tran Thi B",
+                    PhoneNumber = "0987654321",
+                    Password = "user2@bb",
+                    RoleId = 2,
+                },
+                new ApplicationUser
+                {
+                    UserId = 3,
+                    UserName = "user3",
+                    Address = "123 Nguyen Hue, TP.HCM",
+                    Email = "user3@gmail.com",
+                    Name = "Le Van C",
+                    PhoneNumber = "0934567890",
+                    Password = "user3@cc",
+                    RoleId = 2,
+                },
+                new ApplicationUser
+                {
+                    UserId = 4,
+                    UserName = "employee1",
+                    Address = "789 Tran Hung Dao, TP.HCM",
+                    Email = "employee1@gmail.com",
+                    Name = "Hoang Dung",
+                    PhoneNumber = "0908765432",
+                    Password = "employee1@dd",
+                    RoleId = 3,
+                }
+            );
+            modelBuilder.Entity<UserAdmin>().ToTable("UserAdmin");
+            modelBuilder.Entity<UserAdmin>().HasData(
+                new UserAdmin
+                {
+                    UserAdminId = 1,
+                    UserName = "admin",
+                    Password = "admin@123",
+                    RoleId = 1,
+                }
+            );
         }
-
     }
 }
+
