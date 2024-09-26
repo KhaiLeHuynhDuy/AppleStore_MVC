@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+﻿using Apple.Domain.Repository.IRepository;
+using Apple.Models.Models;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,11 +12,12 @@ namespace Apple.Utility.Helpers
 {
     public class PasswordHasher
     {
+        
         public static (string hashedPassword, string salt) HashPassword(string password)
         {
             // Tạo một salt ngẫu nhiên
             byte[] salt = RandomNumberGenerator.GetBytes(128 / 8); // 128 bits = 16 bytes
-
+           
             // Băm mật khẩu với salt
             string hashedPassword = Convert.ToBase64String(KeyDerivation.Pbkdf2(
                 password: password,

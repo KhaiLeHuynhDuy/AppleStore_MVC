@@ -62,6 +62,9 @@ namespace Apple.DataAccess.Migrations
                     b.Property<int>("RoleId")
                         .HasColumnType("int");
 
+                    b.Property<string>("Salt")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<byte>("Sex")
                         .HasColumnType("tinyint");
 
@@ -83,6 +86,7 @@ namespace Apple.DataAccess.Migrations
                             Active = false,
                             Address = "307 Hoang Huu Nam, Thu Duc",
                             Email = "user1@gmail.com",
+                            ImagesUser = "",
                             Name = "Nguyen Van A",
                             Password = "user1@aa",
                             PhoneNumber = "0123456789",
@@ -96,11 +100,12 @@ namespace Apple.DataAccess.Migrations
                             Active = false,
                             Address = "456 Le Loi, TP.HCM",
                             Email = "user2@gmail.com",
+                            ImagesUser = "",
                             Name = "Tran Thi B",
                             Password = "user2@bb",
                             PhoneNumber = "0987654321",
                             RoleId = 2,
-                            Sex = (byte)0,
+                            Sex = (byte)1,
                             UserName = "user2"
                         },
                         new
@@ -109,6 +114,7 @@ namespace Apple.DataAccess.Migrations
                             Active = false,
                             Address = "123 Nguyen Hue, TP.HCM",
                             Email = "user3@gmail.com",
+                            ImagesUser = "",
                             Name = "Le Van C",
                             Password = "user3@cc",
                             PhoneNumber = "0934567890",
@@ -119,14 +125,15 @@ namespace Apple.DataAccess.Migrations
                         new
                         {
                             UserId = 4,
-                            Active = false,
+                            Active = true,
                             Address = "789 Tran Hung Dao, TP.HCM",
                             Email = "employee1@gmail.com",
+                            ImagesUser = "",
                             Name = "Hoang Dung",
                             Password = "employee1@dd",
                             PhoneNumber = "0908765432",
                             RoleId = 3,
-                            Sex = (byte)0,
+                            Sex = (byte)1,
                             UserName = "employee1"
                         });
                 });

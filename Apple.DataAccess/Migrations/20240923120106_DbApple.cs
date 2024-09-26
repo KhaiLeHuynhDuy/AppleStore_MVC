@@ -7,7 +7,7 @@
 namespace Apple.DataAccess.Migrations
 {
     /// <inheritdoc />
-    public partial class DbSeed : Migration
+    public partial class DbApple : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -73,9 +73,13 @@ namespace Apple.DataAccess.Migrations
                     Email = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Password = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
                     Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    Address = table.Column<string>(type: "nvarchar(70)", maxLength: 70, nullable: true),
+                    Address = table.Column<string>(type: "nvarchar(70)", maxLength: 70, nullable: false),
+                    Sex = table.Column<byte>(type: "tinyint", nullable: false),
+                    Active = table.Column<bool>(type: "bit", nullable: false),
+                    Salt = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ImagesUser = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     RoleId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -133,13 +137,13 @@ namespace Apple.DataAccess.Migrations
 
             migrationBuilder.InsertData(
                 table: "ApplicationUser",
-                columns: new[] { "UserId", "Address", "Email", "Name", "Password", "PhoneNumber", "RoleId", "UserName" },
+                columns: new[] { "UserId", "Active", "Address", "Email", "ImagesUser", "Name", "Password", "PhoneNumber", "RoleId", "Salt", "Sex", "UserName" },
                 values: new object[,]
                 {
-                    { 1, "307 Hoang Huu Nam, Thu Duc", "user1@gmail.com", "Nguyen Van A", "user1@aa", "0123456789", 2, "user1" },
-                    { 2, "456 Le Loi, TP.HCM", "user2@gmail.com", "Tran Thi B", "user2@bb", "0987654321", 2, "user2" },
-                    { 3, "123 Nguyen Hue, TP.HCM", "user3@gmail.com", "Le Van C", "user3@cc", "0934567890", 2, "user3" },
-                    { 4, "789 Tran Hung Dao, TP.HCM", "employee1@gmail.com", "Hoang Dung", "employee1@dd", "0908765432", 3, "employee1" }
+                    { 1, false, "307 Hoang Huu Nam, Thu Duc", "user1@gmail.com", "", "Nguyen Van A", "user1@aa", "0123456789", 2, null, (byte)0, "user1" },
+                    { 2, false, "456 Le Loi, TP.HCM", "user2@gmail.com", "", "Tran Thi B", "user2@bb", "0987654321", 2, null, (byte)1, "user2" },
+                    { 3, false, "123 Nguyen Hue, TP.HCM", "user3@gmail.com", "", "Le Van C", "user3@cc", "0934567890", 2, null, (byte)0, "user3" },
+                    { 4, true, "789 Tran Hung Dao, TP.HCM", "employee1@gmail.com", "", "Hoang Dung", "employee1@dd", "0908765432", 3, null, (byte)1, "employee1" }
                 });
 
             migrationBuilder.InsertData(

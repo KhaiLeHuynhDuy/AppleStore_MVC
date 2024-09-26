@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Apple.DataAccess.Migrations
 {
     [DbContext(typeof(AppleStoreDbContext))]
-    [Migration("20240923084429_DbSeed")]
-    partial class DbSeed
+    [Migration("20240923120106_DbApple")]
+    partial class DbApple
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -32,7 +32,11 @@ namespace Apple.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
 
+                    b.Property<bool>("Active")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Address")
+                        .IsRequired()
                         .HasMaxLength(70)
                         .HasColumnType("nvarchar(70)");
 
@@ -40,6 +44,9 @@ namespace Apple.DataAccess.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("ImagesUser")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .HasMaxLength(50)
@@ -51,11 +58,18 @@ namespace Apple.DataAccess.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("PhoneNumber")
+                        .IsRequired()
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
 
                     b.Property<int>("RoleId")
                         .HasColumnType("int");
+
+                    b.Property<string>("Salt")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte>("Sex")
+                        .HasColumnType("tinyint");
 
                     b.Property<string>("UserName")
                         .IsRequired()
@@ -72,45 +86,57 @@ namespace Apple.DataAccess.Migrations
                         new
                         {
                             UserId = 1,
+                            Active = false,
                             Address = "307 Hoang Huu Nam, Thu Duc",
                             Email = "user1@gmail.com",
+                            ImagesUser = "",
                             Name = "Nguyen Van A",
                             Password = "user1@aa",
                             PhoneNumber = "0123456789",
                             RoleId = 2,
+                            Sex = (byte)0,
                             UserName = "user1"
                         },
                         new
                         {
                             UserId = 2,
+                            Active = false,
                             Address = "456 Le Loi, TP.HCM",
                             Email = "user2@gmail.com",
+                            ImagesUser = "",
                             Name = "Tran Thi B",
                             Password = "user2@bb",
                             PhoneNumber = "0987654321",
                             RoleId = 2,
+                            Sex = (byte)1,
                             UserName = "user2"
                         },
                         new
                         {
                             UserId = 3,
+                            Active = false,
                             Address = "123 Nguyen Hue, TP.HCM",
                             Email = "user3@gmail.com",
+                            ImagesUser = "",
                             Name = "Le Van C",
                             Password = "user3@cc",
                             PhoneNumber = "0934567890",
                             RoleId = 2,
+                            Sex = (byte)0,
                             UserName = "user3"
                         },
                         new
                         {
                             UserId = 4,
+                            Active = true,
                             Address = "789 Tran Hung Dao, TP.HCM",
                             Email = "employee1@gmail.com",
+                            ImagesUser = "",
                             Name = "Hoang Dung",
                             Password = "employee1@dd",
                             PhoneNumber = "0908765432",
                             RoleId = 3,
+                            Sex = (byte)1,
                             UserName = "employee1"
                         });
                 });

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -31,12 +32,12 @@ namespace Apple.Models.ViewModels
         public string? Name { get; set; }
 
         [Required(ErrorMessage = "Address is required.")]
-        public string Address { get; set; }
+        public string? Address { get; set; }
 
         public byte Sex { get; set; }
 
         //public bool Active { get; set; }
-
+        [AllowNull]
         public string? ImagesUser { get; set; }
 
         public int RoleId { get; set; }

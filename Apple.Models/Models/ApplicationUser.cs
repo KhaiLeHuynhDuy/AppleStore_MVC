@@ -17,6 +17,7 @@ namespace Apple.Models.Models
         public int UserId { get; set; }
 
         [Required]
+        [DataType(DataType.EmailAddress)]
         [StringLength(50)]
         public string? Email { get; set; }
 
@@ -25,6 +26,7 @@ namespace Apple.Models.Models
         public string? UserName { get; set; }
 
         [Required]
+        [DataType(DataType.Password)]
         [StringLength(50)]
         public string? Password { get; set; }
         [Required]
@@ -38,6 +40,8 @@ namespace Apple.Models.Models
         public string? Address { get; set; }
         public byte Sex { get; set; }
         public bool Active { get; set; } = false;
+        [AllowNull]
+        public string? Salt { get; set; }
         [AllowNull]
         public string? ImagesUser { get; set; }
         public int RoleId { get; set; }  

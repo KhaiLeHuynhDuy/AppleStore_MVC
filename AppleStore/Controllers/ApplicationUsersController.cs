@@ -49,6 +49,8 @@ namespace AppleStore.Controllers
                 var (hashedPassword, salt) = PasswordHasher.HashPassword(applicationUserViewModels.Password);
                 // Gán giá trị hashedPassword vào thuộc tính Password của ApplicationUser
                 applicationUser.Password = hashedPassword;
+                applicationUser.Salt = salt; 
+
                 await _applicationUserRepository.Add(applicationUser);
                 await _applicationUserRepository.Save();
                 return RedirectToAction("Index", "Home");
@@ -65,13 +67,13 @@ namespace AppleStore.Controllers
 
             string wwwRootPath = _webHostEnvironment.WebRootPath;
             string fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
-            string productPath = Path.Combine(wwwRootPath, @"images\product");
+            string productPath = Path.Combine(wwwRootPath, @"images\user");
             string filePath = Path.Combine(productPath, fileName);
             using (var fileStream = new FileStream(filePath, FileMode.Create))
             {
                 file.CopyTo(fileStream);
             }
-            return Path.Combine(@"\images\product\" + fileName);
+            return Path.Combine(@"\images\user\" + fileName);
         }
         public void DeleteOldImage(string imagePath)
         {
