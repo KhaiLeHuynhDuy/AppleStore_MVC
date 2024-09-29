@@ -19,6 +19,12 @@ namespace Apple.Domain.Repository
             _context = context;
             
         }
+
+        public Task<ApplicationUser?> FindUserByUserName(string username)
+        {
+            return _context.ApplicationUsers.FirstOrDefaultAsync(x => x.UserName == username);
+        }
+
         public IQueryable<ApplicationUser> GetAllApplicationUsers()
         {
             return _context.ApplicationUsers.Include(u => u.Roles);
@@ -33,7 +39,7 @@ namespace Apple.Domain.Repository
         {
             return await _context.ApplicationUsers
                 .Include(u => u.Roles)
-                .Where(u=>u.Roles.RoleName == rolename)
+                .Where(u => u.Roles != null && u.Roles.RoleName == rolename)
                 .FirstOrDefaultAsync();
         }
 

@@ -12,7 +12,6 @@ namespace Apple.Domain.Repository.IRepository
         IQueryable<ApplicationUser> GetAllApplicationUsers();
         Task<ApplicationUser?> GetApplicationUserById(int id);
         Task<ApplicationUser?> GetApplicationUserByRole(string rolename);
-        
-
+        Task<ApplicationUser?> FindUserByUserName(string username);
     }
 }

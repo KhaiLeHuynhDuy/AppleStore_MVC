@@ -11,6 +11,9 @@ using Apple.Domain.Repository.IRepository;
 using Apple.Models.ViewModels;
 using Apple.Utility.Helpers;
 using Microsoft.AspNetCore.Hosting;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 namespace AppleStore.Controllers
 {
     public class ApplicationUsersController : Controller
@@ -29,10 +32,18 @@ namespace AppleStore.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(ApplicationUserViewModels applicationUserViewModels,IFormFile file)
+        public async Task<IActionResult> Register(ApplicationUserViewModels applicationUserViewModels, IFormFile file)
         {
             if (ModelState.IsValid)
             {
+                // Kiểm tra xem người dùng đã tồn tại
+                var existingUser = await _applicationUserRepository.FindUserByUserName(applicationUserViewModels.UserName);
+                if (existingUser != null)
+                {
+                    ModelState.AddModelError(string.Empty, "User already exists.");
+                    return View(applicationUserViewModels);
+                }
+
                 var applicationUser = new ApplicationUser
                 {
                     UserName = applicationUserViewModels.UserName,
@@ -42,22 +53,72 @@ namespace AppleStore.Controllers
                     Address = applicationUserViewModels.Address,
                     Sex = applicationUserViewModels.Sex,
                     RoleId = 2,
-                    ImagesUser = UploadImage(file)
+                    ImagesUser = UploadImage(file) // Kiểm tra file và upload
                 };
-                
-                // Hash mật khẩu
+
+                // Băm mật khẩu
                 var (hashedPassword, salt) = PasswordHasher.HashPassword(applicationUserViewModels.Password);
-                // Gán giá trị hashedPassword vào thuộc tính Password của ApplicationUser
                 applicationUser.Password = hashedPassword;
-                applicationUser.Salt = salt; 
+                applicationUser.Salt = salt;
 
                 await _applicationUserRepository.Add(applicationUser);
                 await _applicationUserRepository.Save();
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Login", "ApplicationUser");
             }
 
             return View(applicationUserViewModels);
         }
+
+        public IActionResult Login()
+        {
+            return View();
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Login(LoginApplicationUserViewModels loginApplicationUserViewModels)
+        {
+            var applicationUser = await _applicationUserRepository.FindUserByUserName(loginApplicationUserViewModels.UserName);
+            if (applicationUser == null)
+            {
+                ModelState.AddModelError(string.Empty, "User not found");
+                return View(loginApplicationUserViewModels);  // Trả về view với lỗi
+            }
+
+            // So sánh mật khẩu
+            if (applicationUser.Salt == null)
+            {
+                if (applicationUser.Password != loginApplicationUserViewModels.Password)
+                {
+                    ModelState.AddModelError(string.Empty, "Invalid password for default user.");
+                    return View(loginApplicationUserViewModels);
+                }
+            }
+            else
+            {
+                var hashedPassword = PasswordHasher.HashPasswordWithSalt(loginApplicationUserViewModels.Password, applicationUser.Salt);
+                if (applicationUser.Password != hashedPassword)
+                {
+                    ModelState.AddModelError(string.Empty, "Invalid password");
+                    return View(loginApplicationUserViewModels);
+                }
+            }
+
+            // Tạo claims cho người dùng
+            var claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.Name, applicationUser.UserName ?? string.Empty),
+        new Claim(ClaimTypes.Email, applicationUser.Email ?? string.Empty),
+        new Claim(ClaimTypes.Role, applicationUser.RoleId.ToString()) // Duy trì tính linh hoạt
+    };
+
+            // Đăng nhập người dùng
+            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal);
+
+            return RedirectToAction("Index", "Home");
+        }
+
         public string UploadImage(IFormFile file)
         {
             if (file == null)

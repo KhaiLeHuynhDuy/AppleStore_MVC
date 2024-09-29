@@ -29,5 +29,21 @@ namespace Apple.Utility.Helpers
             // Trả về mật khẩu đã băm và salt dưới dạng chuỗi Base64
             return (hashedPassword, Convert.ToBase64String(salt));
         }
+        public static string HashPasswordWithSalt(string password, string salt)
+        {
+            // Chuyển đổi salt từ chuỗi Base64 về dạng byte[]
+            byte[] saltBytes = Convert.FromBase64String(salt);
+
+            // Băm mật khẩu với salt
+            string hashedPassword = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                password: password,
+                salt: saltBytes,
+                prf: KeyDerivationPrf.HMACSHA256,
+                iterationCount: 100000,
+                numBytesRequested: 256 / 8)); // 256 bits = 32 bytes
+
+            return hashedPassword;
+        }
+
     }
 }
