@@ -29,14 +29,13 @@ namespace Apple.Models.Models
         [DataType(DataType.Password)]
         [StringLength(50)]
         public string? Password { get; set; }
-        [Required]
-        [StringLength(10)]
+        [RegularExpression(@"^\+?[0-9\s\-()]{7,15}$", ErrorMessage = "Số điện thoại không hợp lệ.")]
+        [AllowNull]
         public string? PhoneNumber { get; set; }
         [AllowNull]
         [StringLength(50)]
         public string? Name { get; set; }
-        [Required]
-        [StringLength(70)]
+        [AllowNull]
         public string? Address { get; set; }
         public byte Sex { get; set; }
         public bool Active { get; set; } = false;

@@ -22,9 +22,9 @@ builder.Services.AddScoped<IApplicationUserRepository, ApplicationUserRepository
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
-        options.LoginPath = "/ApplicationUser/Login";  // Redirect to login page
-        options.LogoutPath = "/ApplicationUser/Logout";
-        options.AccessDeniedPath = "/ApplicationUser/AccessDenied";  // For access denied
+        options.LoginPath = "/ApplicationUsers/Login";  // Redirect to login page
+        options.LogoutPath = "/ApplicationUsers/Logout";
+        options.AccessDeniedPath = "/ApplicationUsers/AccessDenied";  // For access denied
     });
 var app = builder.Build();
 // Configure the HTTP request pipeline.

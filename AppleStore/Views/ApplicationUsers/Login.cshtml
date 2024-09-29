@@ -1,18 +1,162 @@
 ﻿@model Apple.Models.ViewModels.LoginApplicationUserViewModels
-<h1>Login</h1>
 
-<form asp-action="Login" method="post">
-    <div class="form-group">
-        <label asp-for="UserName"></label>
-        <input asp-for="UserName" class="form-control" />
-        <span asp-validation-for="UserName" class="text-danger"></span>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Nhập</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Helvetica:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/styles.css">
+
+    <style>
+        body {
+            font-family: 'Helvetica', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* Chiều cao toàn màn hình */
+            margin: 0; /* Để loại bỏ khoảng cách mặc định */
+            background-color: #fff;
+        }
+
+        .login-container {
+            max-width: 400px;
+            margin: auto; /* Thêm margin auto để căn giữa */
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s;
+            min-height: 300px; /* Tăng chiều cao tối thiểu */
+        }
+
+            .login-container:hover {
+                transform: translateY(-5px);
+            }
+
+        h2 {
+            text-align: center;
+            font-weight: 600;
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 30px;
+        }
+
+        .input-container {
+            position: relative;
+        }
+
+        .form-control {
+            padding-right: 40px;
+        }
+
+        .submit-arrow {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1;
+            transition: transform 0.2s, color 0.2s;
+            color: #007bff;
+        }
+
+            .submit-arrow:hover {
+                color: #0056b3;
+                transform: scale(1.2);
+            }
+
+        .si-container-footer {
+            text-align: center; /* Căn giữa nội dung */
+            margin-top: 20px; /* Khoảng cách giữa form và footer */
+        }
+
+        .links {
+            margin: 10px 0; /* Khoảng cách trên và dưới cho các liên kết */
+        }
+
+        .fat {
+            display: inline; /* Đặt kiểu hiển thị là inline */
+            margin-bottom: 0; /* Bỏ khoảng cách dưới */
+        }
+
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>Đăng Nhập vào Apple Store</h2>
+        <form asp-action="Login" method="post">
+            <div class="form-group">
+                <label asp-for="UserName">Username</label>
+                <div class="input-container">
+                    <input asp-for="UserName" class="form-control" id="usernameField" required />
+                    <button type="submit" class="submit-arrow" id="submitButton" aria-label="Đăng Nhập" style="display: none;">
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-group" id="passwordGroup" style="display: none;">
+                <label asp-for="Password">Password</label>
+                <div class="input-container">
+                    <input asp-for="Password" type="password" class="form-control" id="passwordField" required />
+                    <button type="submit" class="submit-arrow" id="passwordSubmitButton" aria-label="Đăng Nhập">
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="si-container-footer has-remember-me">
+        <div class="links tk-subbody">
+            <div class="si-forgot-password">
+                <a id="iforgot-link" class="si-link ax-outline lite-theme-override" ($click)="iforgotLinkClickHandler($element)" href="https://iforgot.apple.com/password/verify/appleid" target="_blank">
+                    Bạn đã quên <span class="no-wrap sk-icon sk-icon-after sk-icon-external">mật khẩu?</span>
+                    <span class="sr-only">Mở trong cửa sổ mới.</span>
+                </a>
+            </div>
+
+            <div>
+                <span class="fat">
+                    Bạn không có Tài&nbsp;khoản&nbsp;Apple?
+                </span>
+                <a id="create-link" class="si-forgot-password si-link ax-outline lite-theme-override" ($click)="createLinkClickHandler($element)" asp-controller="ApplicationUsers" asp-action="Register" target="_blank">
+                    Tạo tài khoản của bạn ngay bây <span class="no-wrap sk-icon sk-icon-after sk-icon-external">giờ.</span>
+                    <span class="sr-only">Mở trong cửa sổ mới.</span>
+                </a>
+            </div>
+        </div>
     </div>
 
-    <div class="form-group">
-        <label asp-for="Password"></label>
-        <input asp-for="Password" type="password" class="form-control" />
-        <span asp-validation-for="Password" class="text-danger"></span>
-    </div>
-    <button type="submit" class="btn btn-primary">Login</button>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script>
+        const usernameField = document.getElementById('usernameField');
+        const passwordGroup = document.getElementById('passwordGroup');
+        const submitButton = document.getElementById('submitButton');
+        const passwordSubmitButton = document.getElementById('passwordSubmitButton');
 
-</form>
+        usernameField.addEventListener('input', function () {
+            if (this.value.length > 0) {
+                passwordGroup.style.display = 'block'; // Hiện trường mật khẩu
+                document.getElementById('passwordField').focus(); // Tập trung vào trường mật khẩu
+                submitButton.style.display = 'none'; // Ẩn mũi tên ở trường username
+                passwordSubmitButton.style.display = 'inline-flex'; // Hiện mũi tên ở trường password
+            } else {
+                passwordGroup.style.display = 'none'; // Ẩn trường mật khẩu
+                submitButton.style.display = 'inline-flex'; // Hiện mũi tên ở trường username
+                passwordSubmitButton.style.display = 'none'; // Ẩn mũi tên ở trường password
+            }
+        });
+    </script>
+</body>
+</html>

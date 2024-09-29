@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Apple.Models.Models;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Security.Permissions;
 
 namespace Apple.Models.ViewModels
 {
@@ -14,35 +11,26 @@ namespace Apple.Models.ViewModels
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int UserId { get; set; }
 
-        [Required(ErrorMessage = "Email is required.")]
-        [EmailAddress(ErrorMessage = "Invalid Email Address.")]
-        public string Email { get; set; }
+        [Required(ErrorMessage = "Tên là bắt buộc.")]
+        public string Name { get; set; }
 
-        [Required(ErrorMessage = "Username is required.")]
+        [Required(ErrorMessage = "Email là bắt buộc.")]
+        [EmailAddress(ErrorMessage = "Địa chỉ Email không hợp lệ.")]
+        public string Email { get; set; }
+        [Required(ErrorMessage = "Tên đăng nhập là bắt buộc.")]
         public string UserName { get; set; }
 
-        [Required(ErrorMessage = "Password is required.")]
-        [StringLength(50, MinimumLength = 6, ErrorMessage = "Password must be at least 6 characters long.")]
+        [Required(ErrorMessage = "Mật khẩu là bắt buộc.")]
+        [StringLength(50, MinimumLength = 6, ErrorMessage = "Mật khẩu phải ít nhất 6 ký tự.")]
         public string Password { get; set; }
 
-        [Required(ErrorMessage = "Phone number is required.")]
-        [StringLength(10, ErrorMessage = "Phone number must be 10 characters long.")]
-        public string PhoneNumber { get; set; }
-
-        public string? Name { get; set; }
-
-        [Required(ErrorMessage = "Address is required.")]
-        public string? Address { get; set; }
-
+        [Required(ErrorMessage = "Giới tính là bắt buộc.")]
         public byte Sex { get; set; }
-
-        //public bool Active { get; set; }
-        [AllowNull]
-        public string? ImagesUser { get; set; }
 
         public int RoleId { get; set; }
 
-        public string? RoleName { get; set; } // Để hiển thị tên vai trò
-    }
+        [ForeignKey("RoleId")]
+        public Role? Roles { get; set; }
 
+    }
 }

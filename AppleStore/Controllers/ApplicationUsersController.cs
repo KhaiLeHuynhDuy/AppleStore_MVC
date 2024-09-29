@@ -32,7 +32,7 @@ namespace AppleStore.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(ApplicationUserViewModels applicationUserViewModels, IFormFile file)
+        public async Task<IActionResult> Register(ApplicationUserViewModels applicationUserViewModels)
         {
             if (ModelState.IsValid)
             {
@@ -40,20 +40,19 @@ namespace AppleStore.Controllers
                 var existingUser = await _applicationUserRepository.FindUserByUserName(applicationUserViewModels.UserName);
                 if (existingUser != null)
                 {
-                    ModelState.AddModelError(string.Empty, "User already exists.");
+                    ModelState.AddModelError(string.Empty, "Người dùng đã tồn tại.");
                     return View(applicationUserViewModels);
                 }
 
+                // Khởi tạo đối tượng ApplicationUser mới
                 var applicationUser = new ApplicationUser
                 {
                     UserName = applicationUserViewModels.UserName,
                     Email = applicationUserViewModels.Email,
-                    PhoneNumber = applicationUserViewModels.PhoneNumber,
                     Name = applicationUserViewModels.Name,
-                    Address = applicationUserViewModels.Address,
                     Sex = applicationUserViewModels.Sex,
-                    RoleId = 2,
-                    ImagesUser = UploadImage(file) // Kiểm tra file và upload
+                    RoleId = 2, // Xác định vai trò người dùng
+
                 };
 
                 // Băm mật khẩu
@@ -61,11 +60,14 @@ namespace AppleStore.Controllers
                 applicationUser.Password = hashedPassword;
                 applicationUser.Salt = salt;
 
+               
+                // Thêm người dùng vào cơ sở dữ liệu
                 await _applicationUserRepository.Add(applicationUser);
                 await _applicationUserRepository.Save();
-                return RedirectToAction("Login", "ApplicationUser");
+                return RedirectToAction("Login", "ApplicationUsers");
             }
 
+            // Trả lại view nếu ModelState không hợp lệ
             return View(applicationUserViewModels);
         }
 
@@ -105,17 +107,17 @@ namespace AppleStore.Controllers
 
             // Tạo claims cho người dùng
             var claims = new List<Claim>
-    {
-        new Claim(ClaimTypes.Name, applicationUser.UserName ?? string.Empty),
-        new Claim(ClaimTypes.Email, applicationUser.Email ?? string.Empty),
-        new Claim(ClaimTypes.Role, applicationUser.RoleId.ToString()) // Duy trì tính linh hoạt
-    };
+                {
+                    new Claim(ClaimTypes.Name, applicationUser.UserName ?? string.Empty),
+                    new Claim(ClaimTypes.Email, applicationUser.Email ?? string.Empty),
+                    new Claim(ClaimTypes.Role, applicationUser.RoleId.ToString()) // Duy trì tính linh hoạt
+                };
 
             // Đăng nhập người dùng
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal);
-
+            TempData["SuccessMessage"] = $"Đăng nhập thành công! Chào mừng bạn, {applicationUser.UserName}!";
             return RedirectToAction("Index", "Home");
         }
 
@@ -151,6 +153,9 @@ namespace AppleStore.Controllers
                 System.IO.File.Delete(filePath);
             }
         }
-
+        public IActionResult Profile()
+        {
+            return View();
+        }
     }
 }
