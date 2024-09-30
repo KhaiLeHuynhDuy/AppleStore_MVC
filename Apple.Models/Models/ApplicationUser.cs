@@ -25,7 +25,7 @@ namespace Apple.Models.Models
         [StringLength(50)]
         public string? UserName { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Mật khẩu không được để trống.")]
         [DataType(DataType.Password)]
         [StringLength(50)]
         public string? Password { get; set; }

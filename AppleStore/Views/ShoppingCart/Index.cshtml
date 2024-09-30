@@ -31,7 +31,14 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.ApplicationUser.Email)
+                    @if (item.ApplicationUser != null)
+                    {
+                        @Html.DisplayFor(modelItem => item.ApplicationUser.Email)
+                    }
+                    else
+                    {
+                        <span>N/A</span> 
+                    }
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.CreatedAt)

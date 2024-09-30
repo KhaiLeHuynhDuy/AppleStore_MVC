@@ -49,28 +49,46 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model.Products)
+        @if(Model.Products != null && Model.Products.Any())
+        {
+            @foreach (var item in Model.Products)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.ProductName)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Description)</td>
+                    <td>@Html.DisplayFor(modelItem => item.ProductPrice)</td>
+                    <td>
+                        @if (item.Category != null)
+                        {
+                            @Html.DisplayFor(modelItem => item.Category.CategoryName)
+                        }
+                        else
+                        {
+                            <span>Không có danh mục</span> 
+                        }
+                    </td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(item.ImageURL))
+                        {
+                            <img src="@item.ImageURL" alt="Product Image" style="max-width: 200px; max-height: 200px;" />
+                        }
+                        else
+                        {
+                            <p>No image</p>
+                        }
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.ProductID">Edit</a> |
+                        <a asp-action="Details" asp-route-id="@item.ProductID">Details</a> |
+                        <a asp-action="Delete" asp-route-id="@item.ProductID">Delete</a>
+                    </td>
+                </tr>
+            }
+        }
+        else
         {
             <tr>
-                <td>@Html.DisplayFor(modelItem => item.ProductName)</td>
-                <td>@Html.DisplayFor(modelItem => item.Description)</td>
-                <td>@Html.DisplayFor(modelItem => item.ProductPrice)</td>
-                <td>@Html.DisplayFor(modelItem => item.Category.CategoryName)</td>
-                <td>
-                            @if (!string.IsNullOrEmpty(item.ImageURL))
-                            {
-                                <img src="@item.ImageURL" alt="Product Image" style="max-width: 200px; max-height: 200px;" />
-                            }
-                            else
-                            {
-                                <p>No image</p>
-                            }
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.ProductID">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.ProductID">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.ProductID">Delete</a>
-                </td>
+                <td colspan="5">Không có sản phẩm nào để hiển thị.</td> <!-- X là số cột -->
             </tr>
         }
     </tbody>

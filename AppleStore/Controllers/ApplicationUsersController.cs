@@ -17,16 +17,11 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.Build.Framework;
 namespace AppleStore.Controllers
 {
-    public class ApplicationUsersController : Controller
+    public class ApplicationUsersController(IApplicationUserRepository applicationUserRepository, IWebHostEnvironment webHostEnvironment) : Controller
     {
-        private readonly IApplicationUserRepository _applicationUserRepository;
-        private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IApplicationUserRepository _applicationUserRepository = applicationUserRepository;
+        private readonly IWebHostEnvironment _webHostEnvironment = webHostEnvironment;
 
-        public ApplicationUsersController(IApplicationUserRepository applicationUserRepository, IWebHostEnvironment webHostEnvironment)
-        {
-            _applicationUserRepository = applicationUserRepository;
-            _webHostEnvironment = webHostEnvironment;
-        }
         public IActionResult Register()
         {
             return View();
@@ -37,6 +32,11 @@ namespace AppleStore.Controllers
         {
             if (ModelState.IsValid)
             {
+                if (string.IsNullOrWhiteSpace(applicationUserViewModels.UserName))
+                {
+                    ModelState.AddModelError(string.Empty, "Tên người dùng không được để trống.");
+                    return View(applicationUserViewModels);  // Trả về view với lỗi
+                }
                 // Kiểm tra xem người dùng đã tồn tại
                 var existingUser = await _applicationUserRepository.FindUserByUserName(applicationUserViewModels.UserName);
                 if (existingUser != null)
@@ -57,6 +57,10 @@ namespace AppleStore.Controllers
                 };
 
                 // Băm mật khẩu
+                if (string.IsNullOrEmpty(applicationUserViewModels.Password))
+                {
+                    throw new InvalidOperationException("Mật khẩu không được để trống.");
+                }
                 var (hashedPassword, salt) = PasswordHasher.HashPassword(applicationUserViewModels.Password);
                 applicationUser.Password = hashedPassword;
                 applicationUser.Salt = salt;
@@ -81,6 +85,12 @@ namespace AppleStore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginApplicationUserViewModels loginApplicationUserViewModels)
         {
+            if (string.IsNullOrWhiteSpace(loginApplicationUserViewModels.UserName))
+            {
+                ModelState.AddModelError(string.Empty, "Tên người dùng không được để trống.");
+                return View(loginApplicationUserViewModels);  // Trả về view với lỗi
+            }
+
             // Tìm người dùng theo tên đăng nhập
             var applicationUser = await _applicationUserRepository.FindUserByUserName(loginApplicationUserViewModels.UserName);
             if (applicationUser == null)
@@ -100,6 +110,10 @@ namespace AppleStore.Controllers
             }
             else
             {
+                if (string.IsNullOrEmpty(loginApplicationUserViewModels.Password))
+                {
+                    throw new InvalidOperationException("Mật khẩu không được để trống.");
+                }
                 var hashedPassword = PasswordHasher.HashPasswordWithSalt(loginApplicationUserViewModels.Password, applicationUser.Salt);
                 if (applicationUser.Password != hashedPassword)
                 {
@@ -110,12 +124,12 @@ namespace AppleStore.Controllers
 
             // Tạo claims cho người dùng
             var claims = new List<Claim>
-{
-    new Claim(ClaimTypes.NameIdentifier, applicationUser.UserId.ToString()), // Lưu UserId
-    new Claim(ClaimTypes.Name, applicationUser.UserName ?? string.Empty),
-    new Claim(ClaimTypes.Email, applicationUser.Email ?? string.Empty),
-    new Claim(ClaimTypes.Role, applicationUser.RoleId.ToString())
-};
+            {
+                new Claim(ClaimTypes.NameIdentifier, applicationUser.UserId.ToString()), // Lưu UserId
+                new Claim(ClaimTypes.Name, applicationUser.UserName ?? string.Empty),
+                new Claim(ClaimTypes.Email, applicationUser.Email ?? string.Empty),
+                new Claim(ClaimTypes.Role, applicationUser.RoleId.ToString())
+            };
 
             // Tạo ClaimsIdentity với scheme là Cookie
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

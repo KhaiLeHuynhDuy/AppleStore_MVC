@@ -16,7 +16,7 @@ namespace Apple.Models.Models
 
         [Required]
         [StringLength(10)]
-        public string RoleName { get; set; }
+        public string? RoleName { get; set; }
     }
 
 }

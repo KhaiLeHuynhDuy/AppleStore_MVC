@@ -12,17 +12,17 @@ namespace Apple.Models.ViewModels
         public int UserId { get; set; }
 
         [Required(ErrorMessage = "Tên là bắt buộc.")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         [Required(ErrorMessage = "Email là bắt buộc.")]
         [EmailAddress(ErrorMessage = "Địa chỉ Email không hợp lệ.")]
-        public string Email { get; set; }
+        public string? Email { get; set; }
         [Required(ErrorMessage = "Tên đăng nhập là bắt buộc.")]
-        public string UserName { get; set; }
+        public string? UserName { get; set; }
 
         [Required(ErrorMessage = "Mật khẩu là bắt buộc.")]
         [StringLength(50, MinimumLength = 6, ErrorMessage = "Mật khẩu phải ít nhất 6 ký tự.")]
-        public string Password { get; set; }
+        public string? Password { get; set; }
 
         [Required(ErrorMessage = "Giới tính là bắt buộc.")]
         public byte Sex { get; set; }

@@ -18,7 +18,7 @@ namespace Apple.Models.Models
         public int Count { get; set; } // Số lượng
         [ForeignKey("ProductID")]
         [ValidateNever]
-        public Product Product { get; set; } // Thông tin sản phẩm
+        public Product? Product { get; set; } // Thông tin sản phẩm
                                             
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

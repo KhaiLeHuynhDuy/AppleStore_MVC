@@ -32,9 +32,17 @@
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Category)
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Category.CategoryName)
+        <dd class="col-sm-10">
+            @if (Model.Category != null && !string.IsNullOrEmpty(Model.Category.CategoryName))
+            {
+                @Model.Category.CategoryName
+            }
+            else
+            {
+                <span>Không có danh mục</span>
+            }
         </dd>
+
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.ImageURL)
         </dt>

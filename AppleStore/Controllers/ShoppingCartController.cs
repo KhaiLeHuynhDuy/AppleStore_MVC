@@ -6,21 +6,16 @@ using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 namespace AppleStore.Controllers
 {
-    public class ShoppingCartController : Controller
+    public class ShoppingCartController(IShoppingCartRepository shoppingCartRepository, IProductRepository productRepository) : Controller
     {
 
-        private IShoppingCartRepository _shoppingCartRepository;
-        private IProductRepository _productRepository;
-
-        public ShoppingCartController(IShoppingCartRepository shoppingCartRepository, IProductRepository productRepository)
-        {
-            _shoppingCartRepository = shoppingCartRepository;
-            _productRepository = productRepository;
-        }
-
+        private readonly IShoppingCartRepository _shoppingCartRepository = shoppingCartRepository;
+        private readonly IProductRepository _productRepository = productRepository;
         const string CART_KEY = "MYCART";
 
-        public List<ShoppingCart> ShoppingCart => HttpContext.Session.Get<List<ShoppingCart>>(CART_KEY) ?? new List<ShoppingCart>();
+        public List<ShoppingCart> ShoppingCart => HttpContext.Session.Get<List<ShoppingCart>>(CART_KEY) ?? new();
+
+
 
         public IActionResult Index()
         {
@@ -38,11 +33,11 @@ namespace AppleStore.Controllers
             }
 
             // Lấy userId từ claims
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new InvalidOperationException("User ID không hợp lệ."));
 
             // Lấy giỏ hàng của người dùng từ cơ sở dữ liệu hoặc tạo mới nếu không tồn tại
-            var shoppingCart = await _shoppingCartRepository.GetCartByUserId(userId) ?? new ShoppingCart { UserId = userId, ShoppingCartItems = new List<ShoppingCartItems>() };
-
+            var shoppingCart = await _shoppingCartRepository.GetCartByUserId(userId)
+     ?? new ShoppingCart { UserId = userId, ShoppingCartItems = new() };
             // Kiểm tra sản phẩm đã tồn tại trong giỏ hàng hay chưa
             var item = shoppingCart.ShoppingCartItems.SingleOrDefault(ci => ci.ProductID == productId);
             if (item != null)

@@ -5,63 +5,63 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Apple.Domain.Repository.IRepository;
 using Apple.Models.Models;
-
-public class Repository<T> : IRepository<T> where T : class
+namespace Apple.Domain.Repository
 {
-    private readonly DbContext _context;
-    private readonly DbSet<T> _dbSet;
-
-    public Repository(DbContext context)
+    public class Repository<T> : IRepository<T> where T : class
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
-        _dbSet = _context.Set<T>();
-    }
+        private readonly DbContext _context;
+        private readonly DbSet<T> _dbSet;
 
-    public IQueryable<T> GetAll()
-    {
-        return _dbSet.AsQueryable();
-    }
+        public Repository(DbContext context)
+        {
+            _context = context ?? throw new ArgumentNullException(nameof(context));
+            _dbSet = _context.Set<T>();
+        }
 
-    public T Get(Expression<Func<T, bool>> predicate)
-    {
-        return _dbSet.FirstOrDefault(predicate);
-    }
+        public IQueryable<T> GetAll()
+        {
+            return _dbSet.AsQueryable();
+        }
 
-    public async Task Add(T entity)
-    {
-        if (entity == null)
-            throw new ArgumentNullException(nameof(entity));
+        public T Get(Expression<Func<T, bool>> predicate)
+        {
+            return _dbSet.FirstOrDefault(predicate)
+              ?? throw new InvalidOperationException("Không tìm thấy thực thể.");
+        }
 
-        await _dbSet.AddAsync(entity); 
-    }
 
-    public void Update(T entity)
-    {
-        if (entity == null)
-            throw new ArgumentNullException(nameof(entity));
 
-        _dbSet.Update(entity);
+        public async Task Add(T entity)
+        {
+            ArgumentNullException.ThrowIfNull(entity);
 
-    }
+            await _dbSet.AddAsync(entity);
+        }
 
-    public void Delete(T entity)
-    {
-        if (entity == null)
-            throw new ArgumentNullException(nameof(entity));
+        public void Update(T entity)
+        {
+            ArgumentNullException.ThrowIfNull(entity);
 
-        _dbSet.Remove(entity);
-    }
+            _dbSet.Update(entity);
 
-    public void DeleteAll(IQueryable<T> entities)
-    {
-        if (entities == null)
-            throw new ArgumentNullException(nameof(entities));
+        }
 
-        _dbSet.RemoveRange(entities);
-    }
+        public void Delete(T entity)
+        {
+            ArgumentNullException.ThrowIfNull(entity);
+            _dbSet.Remove(entity);
+        }
 
-    public async Task Save()
-    {
-        await _context.SaveChangesAsync();
+        public void DeleteAll(IQueryable<T> entities)
+        {
+            ArgumentNullException.ThrowIfNull(entities);
+            _dbSet.RemoveRange(entities);
+        }
+
+        public async Task Save()
+        {
+            await _context.SaveChangesAsync();
+        }
     }
 }
+

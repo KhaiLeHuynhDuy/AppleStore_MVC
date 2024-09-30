@@ -16,7 +16,7 @@ namespace Apple.Models.Models
         public int ShoppingCartId { get; set; }
         public int UserId { get; set; }
         [ForeignKey("UserId")]
-        public ApplicationUser ApplicationUser { get; set; }
+        public ApplicationUser? ApplicationUser { get; set; }
 
         public List<ShoppingCartItems> ShoppingCartItems { get; set; } = new List<ShoppingCartItems>(); // Danh sách sản phẩm trong giỏ hàng
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

@@ -9,7 +9,7 @@ namespace Apple.Models.ViewModels
 {
     public class ProductViewModels
     {
-        public IEnumerable<Product> Products { get; set; }
-        public IEnumerable<Category> Categories { get; set;}
+        public IEnumerable<Product> ?Products { get; set; }
+        public IEnumerable<Category>? Categories { get; set;}
     }
 }
