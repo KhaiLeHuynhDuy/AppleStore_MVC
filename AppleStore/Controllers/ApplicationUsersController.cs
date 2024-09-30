@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Hosting;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.Build.Framework;
 namespace AppleStore.Controllers
 {
     public class ApplicationUsersController : Controller
@@ -75,10 +76,12 @@ namespace AppleStore.Controllers
         {
             return View();
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginApplicationUserViewModels loginApplicationUserViewModels)
         {
+            // Tìm người dùng theo tên đăng nhập
             var applicationUser = await _applicationUserRepository.FindUserByUserName(loginApplicationUserViewModels.UserName);
             if (applicationUser == null)
             {
@@ -107,19 +110,21 @@ namespace AppleStore.Controllers
 
             // Tạo claims cho người dùng
             var claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.Name, applicationUser.UserName ?? string.Empty),
-                    new Claim(ClaimTypes.Email, applicationUser.Email ?? string.Empty),
-                    new Claim(ClaimTypes.Role, applicationUser.RoleId.ToString()) // Duy trì tính linh hoạt
-                };
-
-            // Đăng nhập người dùng
+            {
+                new Claim(ClaimTypes.Name, applicationUser.UserName ?? string.Empty),
+                new Claim(ClaimTypes.Email, applicationUser.Email ?? string.Empty),
+                new Claim(ClaimTypes.Role, applicationUser.RoleId.ToString()) 
+            };
+            // Tạo ClaimsIdentity với scheme là Cookie
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            // Tạo ClaimsPrincipal dựa trên ClaimsIdentity
             var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+            // Đăng nhập người dùng và tạo cookie
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal);
             TempData["SuccessMessage"] = $"Đăng nhập thành công! Chào mừng bạn, {applicationUser.UserName}!";
             return RedirectToAction("Index", "Home");
         }
+
 
         public string UploadImage(IFormFile file)
         {

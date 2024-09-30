@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Apple.Models.Models;
+using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -13,6 +14,6 @@ namespace Apple.Domain.Repository.IRepository
         void Update(T entity);
         void Delete(T entity);
         void DeleteAll(IQueryable<T> entity);
-        Task Save(); 
+        Task Save();
     }
 }

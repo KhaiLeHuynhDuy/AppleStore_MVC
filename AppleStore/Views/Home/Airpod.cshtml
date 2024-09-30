@@ -1,20 +1,47 @@
 ﻿@model IEnumerable<Apple.Models.Models.Product>
+
+<section class="section section-welcome" data-anim-scroll-group="Welcome" data-component-list="WelcomeEnhanced WelcomeMedia" data-analytics-section-engagement="name:hero">
+    <div class="section-content-responsive">
+        <header class="welcome-header row">
+            <h1 class="welcome-header-title typography-welcome-header-title">iPhone</h1>
+            <div class="welcome-header-description">
+                <p>Designed to be loved.</p>
+            </div>
+        </header>
+    </div>
+    <div class="welcome-video-wall-container playing loaded" style="clip-path: inset(0%);">
+        <div class="welcome-video-content-container">
+            <video role="img" playsinline="true" preload="metadata" class="responsive-video" muted="" poster="" aria-label="Chào mừng tới Apple Store" autoplay="autoplay" loop>
+                <source src="/video/videoiphone.mp4" type="video/mp4" />
+            </video>
+        </div>
+    </div>
+</section>
+
+<style>
+    .responsive-video {
+        width: 100%;
+        max-width: 100vw; /* Giới hạn chiều rộng tối đa bằng chiều rộng màn hình */
+        height: auto; /* Tự động điều chỉnh chiều cao để giữ tỷ lệ */
+    }
+</style>
+
 <div class="container">
     <div class="row">
         @foreach (var item in Model)
         {
             <div class="col-lg-6 mb-4">
-                
+
+                <a asp-controller="Home" asp-action="Details" asp-route-id="@item.ProductID">
                     <div class="card h-100">
-                        <a asp-controller="Home" asp-action="Details" asp-route-id="@item.ProductID">
                         <img src="@item.ImageURL" class="card-img-top" alt="Product Image" />
-                        </a>
                         <div class="card-body">
                             <h5 class="card-title">@item.ProductName</h5>
                             <p class="card-text">@item.Description</p>
                             <p class="card-text text-primary">Price: $@item.ProductPrice</p>
                         </div>
                     </div>
+                </a>
             </div>
         }
     </div>
@@ -22,16 +49,17 @@
 <style>
     .card-img-top {
         object-fit: cover;
-        height: 200px;
+        height: 200px; /* Đặt chiều cao cho ảnh để giữ tỉ lệ */
+        border-radius: 8px 8px 0 0; /* Thêm bo góc cho ảnh */
     }
 
     .card {
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        transition: transform 0.2s ease-in-out;
+        transition: transform 0.2s ease, box-shadow 0.2s ease; /* Thêm hiệu ứng cho box-shadow */
     }
 
         .card:hover {
-            transform: scale(1.05);
+            transform: translateY(-5px); /* Nâng card khi hover */
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Tăng độ bóng khi hover */
         }
 
     .card-title {
@@ -44,5 +72,4 @@
         color: #666;
         font-size: 1rem;
     }
-
 </style>

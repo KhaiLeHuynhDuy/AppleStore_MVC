@@ -21,6 +21,9 @@ namespace Apple.DataAccess.Data
         public DbSet<ApplicationUser> ApplicationUsers {  get; set; }
         public DbSet<UserAdmin> UserAdmins { get; set; }
         public DbSet<Role> Roles { get; set; }
+        public DbSet<ShoppingCart> ShoppingCarts { get; set; }
+        public DbSet<ShoppingCartItem> ShoppingCartItems { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -112,6 +115,17 @@ namespace Apple.DataAccess.Data
                     Password = "admin@123",
                     RoleId = 1,
                 }
+            );
+            modelBuilder.Entity<ShoppingCart>().ToTable("ShoppingCart");
+            modelBuilder.Entity<ShoppingCart>().HasData(
+                new ShoppingCart { ShoppingCartId = 1, UserId = 1 },
+                new ShoppingCart { ShoppingCartId = 2, UserId = 2 }
+            );
+            modelBuilder.Entity<ShoppingCartItem>().ToTable("ShoppingCartItem").HasData(
+                new ShoppingCartItem { ShoppingCartItemId = 1, ShoppingCartId = 1, ProductID = 1, Count = 2 }, // user1 thêm 2 iPhone 13
+                new ShoppingCartItem { ShoppingCartItemId = 2, ShoppingCartId = 1, ProductID = 2, Count = 1 }, // user1 thêm 1 MacBook Air
+                new ShoppingCartItem { ShoppingCartItemId = 3, ShoppingCartId = 2, ProductID = 3, Count = 1 }, // user2 thêm 1 iPad Pro
+                new ShoppingCartItem { ShoppingCartItemId = 4, ShoppingCartId = 2, ProductID = 4, Count = 3 }  // user2 thêm 3 AirPods Pro
             );
         }
     }

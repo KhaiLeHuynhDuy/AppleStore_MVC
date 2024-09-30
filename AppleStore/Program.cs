@@ -18,6 +18,8 @@ builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IEmailSender,EmailSenderRepository>();
 builder.Services.AddScoped<IApplicationUserRepository, ApplicationUserRepository>();
+builder.Services.AddScoped<IShoppingCartRepository, ShoppingCartRepository>();
+builder.Services.AddScoped<IShoppingCartItemRepository, ShoppingCartItemRepository>();  
 //doc microsoft
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -26,6 +28,12 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.LogoutPath = "/ApplicationUsers/Logout";
         options.AccessDeniedPath = "/ApplicationUsers/AccessDenied";  // For access denied
     });
+builder.Services.AddSession(options =>
+{
+    options.Cookie.Name = ".AdventureWorks.Session";
+    options.IdleTimeout = TimeSpan.FromSeconds(10);
+    options.Cookie.IsEssential = true;
+});
 var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -38,6 +46,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.MapRazorPages();
 app.UseRouting();
+app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllerRoute(

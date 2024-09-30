@@ -14,6 +14,7 @@ namespace AppleStore.Controllers
         }
         public IActionResult Index()
         {
+            
             return View();
         }
         public async Task<IActionResult> Details(int id)

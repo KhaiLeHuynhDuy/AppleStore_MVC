@@ -3,6 +3,7 @@ using Apple.DataAccess.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Apple.DataAccess.Migrations
 {
     [DbContext(typeof(AppleStoreDbContext))]
-    partial class AppleStoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240930062753_CartTable")]
+    partial class CartTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -304,10 +307,18 @@ namespace Apple.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ShoppingCartId"));
 
+                    b.Property<int>("Count")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductID")
+                        .HasColumnType("int");
+
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("ShoppingCartId");
+
+                    b.HasIndex("ProductID");
 
                     b.HasIndex("UserId");
 
@@ -317,68 +328,30 @@ namespace Apple.DataAccess.Migrations
                         new
                         {
                             ShoppingCartId = 1,
+                            Count = 2,
+                            ProductID = 1,
                             UserId = 1
                         },
                         new
                         {
                             ShoppingCartId = 2,
-                            UserId = 2
-                        });
-                });
-
-            modelBuilder.Entity("Apple.Models.Models.ShoppingCartItem", b =>
-                {
-                    b.Property<int>("ShoppingCartItemId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ShoppingCartItemId"));
-
-                    b.Property<int>("Count")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ProductID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ShoppingCartId")
-                        .HasColumnType("int");
-
-                    b.HasKey("ShoppingCartItemId");
-
-                    b.HasIndex("ProductID");
-
-                    b.HasIndex("ShoppingCartId");
-
-                    b.ToTable("ShoppingCartItem", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            ShoppingCartItemId = 1,
-                            Count = 2,
-                            ProductID = 1,
-                            ShoppingCartId = 1
-                        },
-                        new
-                        {
-                            ShoppingCartItemId = 2,
                             Count = 1,
                             ProductID = 2,
-                            ShoppingCartId = 1
+                            UserId = 2
                         },
                         new
                         {
-                            ShoppingCartItemId = 3,
+                            ShoppingCartId = 3,
                             Count = 1,
                             ProductID = 3,
-                            ShoppingCartId = 2
+                            UserId = 3
                         },
                         new
                         {
-                            ShoppingCartItemId = 4,
+                            ShoppingCartId = 4,
                             Count = 3,
                             ProductID = 4,
-                            ShoppingCartId = 2
+                            UserId = 1
                         });
                 });
 
@@ -443,6 +416,12 @@ namespace Apple.DataAccess.Migrations
 
             modelBuilder.Entity("Apple.Models.Models.ShoppingCart", b =>
                 {
+                    b.HasOne("Apple.Models.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Apple.Models.Models.ApplicationUser", "ApplicationUser")
                         .WithMany()
                         .HasForeignKey("UserId")
@@ -450,25 +429,8 @@ namespace Apple.DataAccess.Migrations
                         .IsRequired();
 
                     b.Navigation("ApplicationUser");
-                });
-
-            modelBuilder.Entity("Apple.Models.Models.ShoppingCartItem", b =>
-                {
-                    b.HasOne("Apple.Models.Models.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Apple.Models.Models.ShoppingCart", "ShoppingCart")
-                        .WithMany("ShoppingCartItem")
-                        .HasForeignKey("ShoppingCartId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
 
                     b.Navigation("Product");
-
-                    b.Navigation("ShoppingCart");
                 });
 
             modelBuilder.Entity("Apple.Models.Models.UserAdmin", b =>
@@ -480,11 +442,6 @@ namespace Apple.DataAccess.Migrations
                         .IsRequired();
 
                     b.Navigation("Roles");
-                });
-
-            modelBuilder.Entity("Apple.Models.Models.ShoppingCart", b =>
-                {
-                    b.Navigation("ShoppingCartItem");
                 });
 #pragma warning restore 612, 618
         }

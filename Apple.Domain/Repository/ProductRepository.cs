@@ -31,11 +31,11 @@ namespace Apple.Domain.Repository
                 .FirstOrDefaultAsync(p => p.ProductID == id);
         }
 
-        public IQueryable<Product?> GetProductByCategory(string categoryname)
+        public async Task<Product?> GetProductByCategory(string categoryname)
         {
-            return _context.Products
+            return await _context.Products
                 .Include(p => p.Category)
-                .Where(p => p.Category.CategoryName == categoryname);
+                .FirstOrDefaultAsync(p => p.Category.CategoryName == categoryname);
         }
     }
 }
