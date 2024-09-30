@@ -1,44 +1,79 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Apple.Domain.Repository.IRepository;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using Apple.DataAccess.Data;
+using Apple.Utility.Helpers;
 using Apple.Models.Models;
-using Apple.Domain.Repository.IRepository;
-
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 namespace AppleStore.Controllers
 {
     public class ShoppingCartController : Controller
     {
-        private readonly IProductRepository _productRepository;
-        private readonly IShoppingCartRepository _shoppingCartRepository;
-        private readonly IShoppingCartItemRepository _shoppingCartItemRepository;
 
-        public ShoppingCartController(IProductRepository productRepository, IShoppingCartRepository shoppingCartRepository,IShoppingCartItemRepository shoppingCartItemRepository)
+        private IShoppingCartRepository _shoppingCartRepository;
+        private IProductRepository _productRepository;
+
+        public ShoppingCartController(IShoppingCartRepository shoppingCartRepository, IProductRepository productRepository)
         {
-            _productRepository = productRepository;
             _shoppingCartRepository = shoppingCartRepository;
-            _shoppingCartItemRepository = shoppingCartItemRepository;
+            _productRepository = productRepository;
         }
 
-        public async Task<IActionResult> AddToCart(int productId, int count, int userId)
+        const string CART_KEY = "MYCART";
+
+        public List<ShoppingCart> ShoppingCart => HttpContext.Session.Get<List<ShoppingCart>>(CART_KEY) ?? new List<ShoppingCart>();
+
+        public IActionResult Index()
         {
-            // Kiểm tra xem sản phẩm có tồn tại không
-            var product = await _productRepository.GetProductById(productId);
-            if (product == null)
+            return View(ShoppingCart);
+        }
+        [Authorize]
+        public async Task<IActionResult> AddToCart(int productId, int count)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userIdClaim))
             {
-                return NotFound("Product not found");
+                // Nếu không tìm thấy userId, có thể chuyển hướng đến trang đăng nhập
+                return RedirectToAction("Login", "ApplicationUsers"); // Thay "Account" bằng controller phù hợp
             }
 
-           
-            await _shoppingCartItemRepository.Save();
+            // Lấy userId từ claims
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
-            // Chuyển hướng người dùng đến trang giỏ hàng hoặc trang sản phẩm
-            return RedirectToAction("Index", "ShoppingCart"); // Chuyển hướng đến trang giỏ hàng
+            // Lấy giỏ hàng của người dùng từ cơ sở dữ liệu hoặc tạo mới nếu không tồn tại
+            var shoppingCart = await _shoppingCartRepository.GetCartByUserId(userId) ?? new ShoppingCart { UserId = userId, ShoppingCartItems = new List<ShoppingCartItems>() };
+
+            // Kiểm tra sản phẩm đã tồn tại trong giỏ hàng hay chưa
+            var item = shoppingCart.ShoppingCartItems.SingleOrDefault(ci => ci.ProductID == productId);
+            if (item != null)
+            {
+                // Nếu sản phẩm đã tồn tại, tăng số lượng sản phẩm trong giỏ hàng
+                item.Count += count;
+            }
+            else
+            {
+                // Nếu sản phẩm chưa tồn tại, thêm sản phẩm mới vào giỏ hàng
+                var product = await _productRepository.GetProductById(productId);
+                if (product == null)
+                {
+                    return NotFound(); // Nếu sản phẩm không tìm thấy, trả về lỗi 404
+                }
+
+                // Thêm sản phẩm mới vào giỏ hàng
+                shoppingCart.ShoppingCartItems.Add(new ShoppingCartItems
+                {
+                    ProductID = productId,
+                    Product = product,
+                    Count = count,
+                    CreatedAt = DateTime.UtcNow,
+                   
+                });
+            }
+            // Cập nhật hoặc thêm mới giỏ hàng vào cơ sở dữ liệu
+            await _shoppingCartRepository.SaveCart(shoppingCart);
+            return RedirectToAction("Index");
         }
 
     }
+
 }

@@ -1,27 +1,43 @@
+﻿using Apple.Domain.Repository;
 using Apple.Domain.Repository.IRepository;
 using Apple.Models.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using System.Security.Claims;
 
 namespace AppleStore.Controllers
 {
     public class HomeController : Controller
     {
         private readonly IProductRepository _productRepository;
-        public HomeController(IProductRepository productRepository)
+        private readonly IShoppingCartRepository _shoppingCartRepository;
+        public HomeController(IProductRepository productRepository, IShoppingCartRepository shoppingCartRepository)
         {
             _productRepository = productRepository;
+            _shoppingCartRepository = shoppingCartRepository;
         }
         public IActionResult Index()
         {
             
             return View();
         }
+        
         public async Task<IActionResult> Details(int id)
         {
-            var productdetails = await _productRepository.GetProductById(id);
-            return View(productdetails);
+            // Lấy sản phẩm từ repository
+            var product = await _productRepository.GetProductById(id);
+
+            // Kiểm tra nếu sản phẩm không tồn tại
+            if (product == null)
+            {
+                // Trả về một trang lỗi hoặc thông báo sản phẩm không tìm thấy
+                return NotFound("Product not found.");
+            }
+
+            return View(product);
         }
+       
         public IActionResult Privacy()
         {
             return View();
@@ -33,7 +49,7 @@ namespace AppleStore.Controllers
         }
         public IActionResult DisplayProductByCategory(string category)
         {
-            var product = _productRepository.GetProductByCategory(category);
+            var product = _productRepository.GetAllProductsByCategory(category);
             return View(product);
         }
         public IActionResult IPhone()

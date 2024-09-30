@@ -9,6 +9,7 @@ namespace Apple.Domain.Repository.IRepository
 {
     public interface IShoppingCartRepository:IRepository<ShoppingCart>
     {
-        Task<ShoppingCart> GetCartByUserId(int userId); 
+        Task<ShoppingCart?> GetCartByUserId(int userId);
+        Task SaveCart(ShoppingCart cart);
     }
 }

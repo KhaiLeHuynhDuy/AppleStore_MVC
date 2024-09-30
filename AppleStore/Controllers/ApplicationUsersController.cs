@@ -85,7 +85,7 @@ namespace AppleStore.Controllers
             var applicationUser = await _applicationUserRepository.FindUserByUserName(loginApplicationUserViewModels.UserName);
             if (applicationUser == null)
             {
-                ModelState.AddModelError(string.Empty, "User not found");
+                ModelState.AddModelError(string.Empty, "Tên người dùng không tồn tại.");
                 return View(loginApplicationUserViewModels);  // Trả về view với lỗi
             }
 
@@ -94,7 +94,7 @@ namespace AppleStore.Controllers
             {
                 if (applicationUser.Password != loginApplicationUserViewModels.Password)
                 {
-                    ModelState.AddModelError(string.Empty, "Invalid password for default user.");
+                    ModelState.AddModelError(string.Empty, "Mật khẩu không hợp lệ cho người dùng mặc định.");
                     return View(loginApplicationUserViewModels);
                 }
             }
@@ -103,24 +103,29 @@ namespace AppleStore.Controllers
                 var hashedPassword = PasswordHasher.HashPasswordWithSalt(loginApplicationUserViewModels.Password, applicationUser.Salt);
                 if (applicationUser.Password != hashedPassword)
                 {
-                    ModelState.AddModelError(string.Empty, "Invalid password");
+                    ModelState.AddModelError(string.Empty, "Mật khẩu không hợp lệ.");
                     return View(loginApplicationUserViewModels);
                 }
             }
 
             // Tạo claims cho người dùng
             var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, applicationUser.UserName ?? string.Empty),
-                new Claim(ClaimTypes.Email, applicationUser.Email ?? string.Empty),
-                new Claim(ClaimTypes.Role, applicationUser.RoleId.ToString()) 
-            };
+{
+    new Claim(ClaimTypes.NameIdentifier, applicationUser.UserId.ToString()), // Lưu UserId
+    new Claim(ClaimTypes.Name, applicationUser.UserName ?? string.Empty),
+    new Claim(ClaimTypes.Email, applicationUser.Email ?? string.Empty),
+    new Claim(ClaimTypes.Role, applicationUser.RoleId.ToString())
+};
+
             // Tạo ClaimsIdentity với scheme là Cookie
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
             // Tạo ClaimsPrincipal dựa trên ClaimsIdentity
             var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
             // Đăng nhập người dùng và tạo cookie
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal);
+
             TempData["SuccessMessage"] = $"Đăng nhập thành công! Chào mừng bạn, {applicationUser.UserName}!";
             return RedirectToAction("Index", "Home");
         }

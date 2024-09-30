@@ -1,4 +1,4 @@
-using Apple.DataAccess.Data;
+﻿using Apple.DataAccess.Data;
 using Apple.Domain.Repository;
 using Apple.Domain.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
@@ -19,19 +19,18 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IEmailSender,EmailSenderRepository>();
 builder.Services.AddScoped<IApplicationUserRepository, ApplicationUserRepository>();
 builder.Services.AddScoped<IShoppingCartRepository, ShoppingCartRepository>();
-builder.Services.AddScoped<IShoppingCartItemRepository, ShoppingCartItemRepository>();  
 //doc microsoft
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
         options.LoginPath = "/ApplicationUsers/Login";  // Redirect to login page
-        options.LogoutPath = "/ApplicationUsers/Logout";
-        options.AccessDeniedPath = "/ApplicationUsers/AccessDenied";  // For access denied
+        //options.LogoutPath = "/ApplicationUsers/Logout";
+        //options.AccessDeniedPath = "/ApplicationUsers/AccessDenied";  // For access denied
     });
 builder.Services.AddSession(options =>
 {
     options.Cookie.Name = ".AdventureWorks.Session";
-    options.IdleTimeout = TimeSpan.FromSeconds(10);
+    options.IdleTimeout = TimeSpan.FromMinutes(30); // Đặt lại thời gian hết hạn
     options.Cookie.IsEssential = true;
 });
 var app = builder.Build();

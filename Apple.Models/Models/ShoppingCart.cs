@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -16,10 +17,13 @@ namespace Apple.Models.Models
         public int UserId { get; set; }
         [ForeignKey("UserId")]
         public ApplicationUser ApplicationUser { get; set; }
+
+        public List<ShoppingCartItems> ShoppingCartItems { get; set; } = new List<ShoppingCartItems>(); // Danh sách sản phẩm trong giỏ hàng
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime ExpirationDate { get; set; }
         public DateTime? UpdatedAt { get; set; }
 
-        public ICollection<ShoppingCartItem> ShoppingCartItem { get; set; } = new List<ShoppingCartItem>();
+
 
     }
 }

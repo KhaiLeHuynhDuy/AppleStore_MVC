@@ -10,6 +10,6 @@ namespace Apple.Domain.Repository.IRepository
     {
         IQueryable<Product> GetAllProducts();
         Task<Product?> GetProductById(int id); 
-        Task<Product?> GetProductByCategory(string categoryname);
+        IQueryable<Product?> GetAllProductsByCategory(string categoryname);
     }
 }
