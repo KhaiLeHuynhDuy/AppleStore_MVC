@@ -20,19 +20,13 @@ namespace Apple.Domain.Repository
 
         public async Task<ShoppingCart?> GetCartByUserId(int userId)
         {
-            var cart = await _context.ShoppingCarts
+            return await _context.ShoppingCarts
                 .Include(cart => cart.ShoppingCartItems)
                 .ThenInclude(item => item.Product)
                 .FirstOrDefaultAsync(cart => cart.UserId == userId);
-
-            if (cart == null)
-            {
-                // Có thể ném ra một ngoại lệ hoặc tạo một ShoppingCart mặc định
-                throw new InvalidOperationException("Giỏ hàng không tồn tại cho người dùng");
-            }
-
-            return cart;
         }
+
+
         public async Task SaveCart(ShoppingCart cart)
         {
             _context.ShoppingCarts.Update(cart);

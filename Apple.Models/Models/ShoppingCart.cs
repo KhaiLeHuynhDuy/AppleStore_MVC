@@ -17,11 +17,12 @@ namespace Apple.Models.Models
         public int UserId { get; set; }
         [ForeignKey("UserId")]
         public ApplicationUser? ApplicationUser { get; set; }
-
         public List<ShoppingCartItems> ShoppingCartItems { get; set; } = new List<ShoppingCartItems>(); // Danh sách sản phẩm trong giỏ hàng
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime ExpirationDate { get; set; }
         public DateTime? UpdatedAt { get; set; }
+        public int TotalItemCount => ShoppingCartItems.Sum(item => item.Count);
+
 
 
 

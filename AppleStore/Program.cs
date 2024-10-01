@@ -24,8 +24,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     .AddCookie(options =>
     {
         options.LoginPath = "/ApplicationUsers/Login";  // Redirect to login page
-        //options.LogoutPath = "/ApplicationUsers/Logout";
-        //options.AccessDeniedPath = "/ApplicationUsers/AccessDenied";  // For access denied
+        options.LogoutPath = "/ApplicationUsers/Logout";
+        options.AccessDeniedPath = "/ApplicationUsers/AccessDenied";  // For access denied
     });
 builder.Services.AddSession(options =>
 {

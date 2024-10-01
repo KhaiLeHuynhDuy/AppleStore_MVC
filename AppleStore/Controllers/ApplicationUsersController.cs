@@ -15,12 +15,14 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Build.Framework;
+using Apple.Domain.Repository;
 namespace AppleStore.Controllers
 {
-    public class ApplicationUsersController(IApplicationUserRepository applicationUserRepository, IWebHostEnvironment webHostEnvironment) : Controller
+    public class ApplicationUsersController(IApplicationUserRepository applicationUserRepository, IWebHostEnvironment webHostEnvironment, IShoppingCartRepository shoppingCartRepository) : Controller
     {
         private readonly IApplicationUserRepository _applicationUserRepository = applicationUserRepository;
         private readonly IWebHostEnvironment _webHostEnvironment = webHostEnvironment;
+        private readonly IShoppingCartRepository _shoppingCartRepository = shoppingCartRepository;
 
         public IActionResult Register()
         {
@@ -88,23 +90,22 @@ namespace AppleStore.Controllers
             if (string.IsNullOrWhiteSpace(loginApplicationUserViewModels.UserName))
             {
                 ModelState.AddModelError(string.Empty, "Tên người dùng không được để trống.");
-                return View(loginApplicationUserViewModels);  // Trả về view với lỗi
+                return View(loginApplicationUserViewModels);
             }
 
-            // Tìm người dùng theo tên đăng nhập
             var applicationUser = await _applicationUserRepository.FindUserByUserName(loginApplicationUserViewModels.UserName);
             if (applicationUser == null)
             {
                 ModelState.AddModelError(string.Empty, "Tên người dùng không tồn tại.");
-                return View(loginApplicationUserViewModels);  // Trả về view với lỗi
+                return View(loginApplicationUserViewModels);
             }
 
-            // So sánh mật khẩu
+            // Kiểm tra mật khẩu
             if (applicationUser.Salt == null)
             {
                 if (applicationUser.Password != loginApplicationUserViewModels.Password)
                 {
-                    ModelState.AddModelError(string.Empty, "Mật khẩu không hợp lệ cho người dùng mặc định.");
+                    ModelState.AddModelError(string.Empty, "Mật khẩu không hợp lệ.");
                     return View(loginApplicationUserViewModels);
                 }
             }
@@ -122,28 +123,50 @@ namespace AppleStore.Controllers
                 }
             }
 
-            // Tạo claims cho người dùng
+            // Tạo và thêm Claims
             var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, applicationUser.UserId.ToString()), // Lưu UserId
-                new Claim(ClaimTypes.Name, applicationUser.UserName ?? string.Empty),
-                new Claim(ClaimTypes.Email, applicationUser.Email ?? string.Empty),
-                new Claim(ClaimTypes.Role, applicationUser.RoleId.ToString())
-            };
+    {
+        new Claim(ClaimTypes.NameIdentifier, applicationUser.UserId.ToString()),
+        new Claim(ClaimTypes.Name, applicationUser.UserName ?? string.Empty),
+        new Claim(ClaimTypes.Email, applicationUser.Email ?? string.Empty),
+        new Claim(ClaimTypes.Role, applicationUser.RoleId.ToString())
+    };
 
-            // Tạo ClaimsIdentity với scheme là Cookie
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-            // Tạo ClaimsPrincipal dựa trên ClaimsIdentity
             var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
-            // Đăng nhập người dùng và tạo cookie
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal);
+
+            // Lấy giỏ hàng từ session nếu có
+            var sessionCart = HttpContext.Session.Get<List<ShoppingCartItems>>("Cart");
+
+            if (sessionCart != null && sessionCart.Any())
+            {
+                // Lấy hoặc tạo giỏ hàng cho người dùng
+                var shoppingCart = await _shoppingCartRepository.GetCartByUserId(applicationUser.UserId)
+                    ?? new ShoppingCart { UserId = applicationUser.UserId, ShoppingCartItems = new List<ShoppingCartItems>() };
+
+                foreach (var item in sessionCart)
+                {
+                    var existingItem = shoppingCart.ShoppingCartItems.SingleOrDefault(ci => ci.ProductID == item.ProductID);
+                    if (existingItem != null)
+                    {
+                        existingItem.Count += item.Count;
+                    }
+                    else
+                    {
+                        shoppingCart.ShoppingCartItems.Add(item);
+                    }
+                }
+
+                // Lưu giỏ hàng vào cơ sở dữ liệu
+                await _shoppingCartRepository.SaveCart(shoppingCart);
+                HttpContext.Session.Remove("Cart"); // Xóa giỏ hàng tạm thời từ session
+            }
 
             TempData["SuccessMessage"] = $"Đăng nhập thành công! Chào mừng bạn, {applicationUser.UserName}!";
             return RedirectToAction("Index", "Home");
         }
-
 
         public string UploadImage(IFormFile file)
         {

@@ -1,60 +1,32 @@
-﻿@model IEnumerable<Apple.Models.Models.ShoppingCart>
+﻿@model List<Apple.Models.Models.ShoppingCartItems>
 
-@{
-    ViewData["Title"] = "Index";
+<h2>Giỏ hàng của bạn</h2>
+
+@if (Model == null || !Model.Any())
+{
+    <p>@ViewBag.Message</p>
 }
-
-<h1>Index</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.ApplicationUser)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ExpirationDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UpdatedAt)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                    @if (item.ApplicationUser != null)
-                    {
-                        @Html.DisplayFor(modelItem => item.ApplicationUser.Email)
-                    }
-                    else
-                    {
-                        <span>N/A</span> 
-                    }
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ExpirationDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UpdatedAt)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.ShoppingCartId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.ShoppingCartId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.ShoppingCartId">Delete</a>
-            </td>
-        </tr>
+else
+{
+    <table>
+        <thead>
+            <tr>
+                <th>Sản phẩm</th>
+                <th>Số lượng</th>
+                <th>Giá</th>
+                <th>Tổng</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Product.ProductName</td>
+                    <td>@item.Count</td>
+                    <td>@item.Product.ProductPrice</td>
+                    <td>@(item.Count * item.Product.ProductPrice)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
 }
-    </tbody>
-</table>

@@ -13,14 +13,14 @@ namespace Apple.Models.Models
     {
         [Key]
         public int ShoppingCartItemsID { get; set; } // Id cho từng mục trong giỏ hàng
-        public int ShoppingCartId { get; set; } // Liên kết đến giỏ hàng
+        public int ShoppingCartId { get; set; }
         public int ProductID { get; set; } // Id sản phẩm
         public int Count { get; set; } // Số lượng
         [ForeignKey("ProductID")]
         [ValidateNever]
         public Product? Product { get; set; } // Thông tin sản phẩm
                                             
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         // Thời gian cập nhật mục
         public DateTime? UpdatedAt { get; set; }

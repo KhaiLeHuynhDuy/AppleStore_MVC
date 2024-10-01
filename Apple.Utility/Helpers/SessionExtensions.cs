@@ -20,5 +20,6 @@ namespace Apple.Utility.Helpers
             var value = session.GetString(key);
             return value == null ? default : JsonSerializer.Deserialize<T>(value);
         }
+
     }
 }
