@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Apple.Models.ViewModels
 {
-    public class ShopppingCartViewModels
+    public class ShoppingCartViewModels
     {
         public int TotalItemCount {  get; set; }
     }
