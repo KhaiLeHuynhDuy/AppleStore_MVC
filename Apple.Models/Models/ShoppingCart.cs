@@ -21,7 +21,7 @@ namespace Apple.Models.Models
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime ExpirationDate { get; set; }
         public DateTime? UpdatedAt { get; set; }
-        public int TotalItemCount => ShoppingCartItems.Sum(item => item.Count);
+        
 
 
 

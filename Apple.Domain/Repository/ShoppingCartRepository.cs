@@ -26,7 +26,6 @@ namespace Apple.Domain.Repository
                 .FirstOrDefaultAsync(cart => cart.UserId == userId);
         }
 
-
         public async Task SaveCart(ShoppingCart cart)
         {
             _context.ShoppingCarts.Update(cart);

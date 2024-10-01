@@ -14,7 +14,7 @@ namespace AppleStore.Controllers
     {
         private readonly IShoppingCartRepository _shoppingCartRepository;
         private readonly IProductRepository _productRepository;
-        const string CART_KEY = "MYCART";
+       
 
         public ShoppingCartController(IShoppingCartRepository shoppingCartRepository, IProductRepository productRepository)
         {
@@ -22,12 +22,12 @@ namespace AppleStore.Controllers
             _productRepository = productRepository;
         }
 
-        public List<ShoppingCart> ShoppingCart => HttpContext.Session.Get<List<ShoppingCart>>(CART_KEY) ?? new();
+        public List<ShoppingCart> ShoppingCart => HttpContext.Session.Get<List<ShoppingCart>>(ConstVariable.CART_KEY) ?? new();
 
         public async Task<IActionResult> Index()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var itemCount = 0;
+            
 
             // Lấy giỏ hàng từ session
             var cart = HttpContext.Session.Get<List<ShoppingCartItems>>("Cart") ?? new List<ShoppingCartItems>();
