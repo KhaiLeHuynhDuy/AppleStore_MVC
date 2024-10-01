@@ -206,6 +206,24 @@
                                 @await Component.InvokeAsync("ShoppingCart")
                             </div>
                         </li>
+                        <li data-topnav-flyout-label="Search apple.com" data-analytics-title="open - search field"
+                            class="globalnav-item globalnav-search">
+                            <a role="button" id="globalnav-menubutton-link-search" asp-controller="ApplicationUsers" asp-action="Profile"
+                               class="globalnav-link globalnav-link-search">
+                                <span class="globalnav-image-regular">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="15px" height="15px" viewBox="0 0 24 24">
+                                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-3.31 0-10 1.67-10 5v2h20v-2c0-3.33-6.69-5-10-5z" />
+                                    </svg>
+                                </span>
+                                <span class="globalnav-image-compact">
+                                    <svg height="24" width="24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-3.31 0-10 1.67-10 5v2h20v-2c0-3.33-6.69-5-10-5z" />
+                                    </svg>
+                                </span>
+                            </a>
+                        </li>
+
+
                     </ul>
                 </div>
             </nav>

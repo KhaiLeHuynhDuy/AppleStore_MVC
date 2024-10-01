@@ -1,14 +1,81 @@
 ﻿@model List<Apple.Models.Models.ShoppingCartItems>
 
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f8f9fa;
+        margin: 0;
+        padding: 20px;
+    }
+
+    h2 {
+        text-align: center;
+        color: #333;
+    }
+
+    .cart-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+        .cart-table th, .cart-table td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        .cart-table th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .cart-table tr:hover {
+            background-color: #f1f1f1;
+        }
+
+    .empty-cart {
+        text-align: center;
+        color: #777;
+        font-size: 18px;
+        margin: 20px 0;
+    }
+
+    .total-price {
+        font-weight: bold;
+        margin-top: 20px;
+        text-align: right;
+    }
+
+    .checkout-button {
+        display: inline-block;
+        padding: 10px 20px;
+        margin-top: 20px;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        text-decoration: none;
+    }
+
+        .checkout-button:hover {
+            background-color: #218838;
+        }
+</style>
+
 <h2>Giỏ hàng của bạn</h2>
 
 @if (Model == null || !Model.Any())
 {
-    <p>@ViewBag.Message</p>
+    <div class="empty-cart">
+        <p>@ViewBag.Message</p>
+        <a href="@Url.Action("Index", "Home")" class="checkout-button">Tiếp tục mua sắm</a>
+    </div>
 }
 else
 {
-    <table>
+    <table class="cart-table">
         <thead>
             <tr>
                 <th>Sản phẩm</th>
@@ -20,13 +87,21 @@ else
         <tbody>
             @foreach (var item in Model)
             {
+                var productPrice = item.Product.ProductPrice;
+                var total = item.Count * productPrice;
+
                 <tr>
                     <td>@item.Product.ProductName</td>
                     <td>@item.Count</td>
-                    <td>@item.Product.ProductPrice</td>
-                    <td>@(item.Count * item.Product.ProductPrice)</td>
+                    <td>@productPrice.ToString("C0")</td>
+                    <td>@total.ToString("C0")</td>
                 </tr>
             }
         </tbody>
     </table>
+
+    <div class="total-price">
+        Tổng tiền: @(Model.Sum(item => item.Count * item.Product.ProductPrice).ToString("C0"))
+    </div>
+    <a href="@Url.Action("Checkout", "ShoppingCart")" class="checkout-button">Thanh toán</a>
 }
